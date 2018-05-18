@@ -5,23 +5,23 @@
 
 static int init(void)
 {
-  /* �ʲ��ϥ�󥫡�������ץȤ�������Ƥ��륷��ܥ� */
+  /* 以下はリンカ・スクリプトで定義してあるシンボル */
   extern int erodata, data_start, edata, bss_start, ebss;
 
   /*
-   * �ǡ����ΰ��BSS�ΰ���������롥���ν����ʹߤǤʤ��ȡ�
-   * �������Х��ѿ������������Ƥ��ʤ��Τ����ա�
+   * データ領域とBSS領域を初期化する．この処理以降でないと，
+   * グローバル変数が初期化されていないので注意．
    */
   memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
   memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
 
-  /* ���ꥢ��ν���� */
+  /* シリアルの初期化 */
   serial_init(SERIAL_DEFAULT_DEVICE);
 
   return 0;
 }
 
-/* �����16�ʥ���׽��� */
+/* メモリの16進ダンプ出力 */
 static int dump(char *buf, long size)
 {
   long i;
@@ -56,26 +56,26 @@ int main(void)
   static char buf[16];
   static long size = -1;
   static unsigned char *loadbuf = NULL;
-  extern int buffer_start; /* ��󥫡�������ץȤ��������Ƥ���Хåե� */
+  extern int buffer_start; /* リンカ・スクリプトで定義されているバッファ */
 
   init();
 
   puts("kzload (kozos boot loader) started.\n");
 
   while (1) {
-    puts("kzload> "); /* �ץ���ץ�ɽ�� */
-    gets(buf); /* ���ꥢ�뤫��Υ��ޥ�ɼ��� */
+    puts("kzload> "); /* プロンプト表示 */
+    gets(buf); /* シリアルからのコマンド受信 */
 
-    if (!strcmp(buf, "load")) { /* XMODEM�ǤΥե�����Υ���������� */
+    if (!strcmp(buf, "load")) { /* XMODEMでのファイルのダウンロード */
       loadbuf = (char *)(&buffer_start);
       size = xmodem_recv(loadbuf);
-      wait(); /* ž�����ץ꤬��λ��ü�����ץ�����椬���ޤ��Ԥ���碌�� */
+      wait(); /* 転送アプリが終了し端末アプリに制御が戻るまで待ち合わせる */
       if (size < 0) {
 	puts("\nXMODEM receive error!\n");
       } else {
 	puts("\nXMODEM receive succeeded.\n");
       }
-    } else if (!strcmp(buf, "dump")) { /* �����16�ʥ���׽��� */
+    } else if (!strcmp(buf, "dump")) { /* メモリの16進ダンプ出力 */
       puts("size: ");
       putxval(size, 0);
       puts("\n");

@@ -8,51 +8,51 @@
 #define THREAD_NUM 6
 #define THREAD_NAME_SIZE 15
 
-/* ¥¹¥ì¥Ã¥É¡¦¥³¥ó¥Æ¥­¥¹¥È */
+/* ã‚¹ãƒ¬ãƒƒãƒ‰ãƒ»ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ */
 typedef struct _kz_context {
-  uint32 sp; /* ¥¹¥¿¥Ã¥¯¡¦¥İ¥¤¥ó¥¿ */
+  uint32 sp; /* ã‚¹ã‚¿ãƒƒã‚¯ãƒ»ãƒã‚¤ãƒ³ã‚¿ */
 } kz_context;
 
-/* ¥¿¥¹¥¯¡¦¥³¥ó¥È¥í¡¼¥ë¡¦¥Ö¥í¥Ã¥¯(TCB) */
+/* ã‚¿ã‚¹ã‚¯ãƒ»ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒ»ãƒ–ãƒ­ãƒƒã‚¯(TCB) */
 typedef struct _kz_thread {
   struct _kz_thread *next;
-  char name[THREAD_NAME_SIZE + 1]; /* ¥¹¥ì¥Ã¥ÉÌ¾ */
-  char *stack;    /* ¥¹¥¿¥Ã¥¯ */
+  char name[THREAD_NAME_SIZE + 1]; /* ã‚¹ãƒ¬ãƒƒãƒ‰å */
+  char *stack;    /* ã‚¹ã‚¿ãƒƒã‚¯ */
 
-  struct { /* ¥¹¥ì¥Ã¥É¤Î¥¹¥¿¡¼¥È¡¦¥¢¥Ã¥×(thread_init())¤ËÅÏ¤¹¥Ñ¥é¥á¡¼¥¿ */
-    kz_func_t func; /* ¥¹¥ì¥Ã¥É¤Î¥á¥¤¥ó´Ø¿ô */
-    int argc;       /* ¥¹¥ì¥Ã¥É¤Î¥á¥¤¥ó´Ø¿ô¤ËÅÏ¤¹ argc */
-    char **argv;    /* ¥¹¥ì¥Ã¥É¤Î¥á¥¤¥ó´Ø¿ô¤ËÅÏ¤¹ argv */
+  struct { /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆãƒ»ã‚¢ãƒƒãƒ—(thread_init())ã«æ¸¡ã™ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ */
+    kz_func_t func; /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ¡ã‚¤ãƒ³é–¢æ•° */
+    int argc;       /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ¡ã‚¤ãƒ³é–¢æ•°ã«æ¸¡ã™ argc */
+    char **argv;    /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ¡ã‚¤ãƒ³é–¢æ•°ã«æ¸¡ã™ argv */
   } init;
 
-  struct { /* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ëÍÑ¥Ğ¥Ã¥Õ¥¡ */
+  struct { /* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ç”¨ãƒãƒƒãƒ•ã‚¡ */
     kz_syscall_type_t type;
     kz_syscall_param_t *param;
   } syscall;
 
-  kz_context context; /* ¥³¥ó¥Æ¥­¥¹¥È¾ğÊó */
+  kz_context context; /* ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆæƒ…å ± */
 } kz_thread;
 
-/* ¥¹¥ì¥Ã¥É¤Î¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼ */
+/* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ */
 static struct {
   kz_thread *head;
   kz_thread *tail;
 } readyque;
 
-static kz_thread *current; /* ¥«¥ì¥ó¥È¡¦¥¹¥ì¥Ã¥É */
-static kz_thread threads[THREAD_NUM]; /* ¥¿¥¹¥¯¡¦¥³¥ó¥È¥í¡¼¥ë¡¦¥Ö¥í¥Ã¥¯ */
-static kz_handler_t handlers[SOFTVEC_TYPE_NUM]; /* ³ä¹ş¤ß¥Ï¥ó¥É¥é */
+static kz_thread *current; /* ã‚«ãƒ¬ãƒ³ãƒˆãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ */
+static kz_thread threads[THREAD_NUM]; /* ã‚¿ã‚¹ã‚¯ãƒ»ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒ»ãƒ–ãƒ­ãƒƒã‚¯ */
+static kz_handler_t handlers[SOFTVEC_TYPE_NUM]; /* å‰²è¾¼ã¿ãƒãƒ³ãƒ‰ãƒ© */
 
 void dispatch(kz_context *context);
 
-/* ¥«¥ì¥ó¥È¡¦¥¹¥ì¥Ã¥É¤ò¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼¤«¤éÈ´¤­½Ğ¤¹ */
+/* ã‚«ãƒ¬ãƒ³ãƒˆãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ã‹ã‚‰æŠœãå‡ºã™ */
 static int getcurrent(void)
 {
   if (current == NULL) {
     return -1;
   }
 
-  /* ¥«¥ì¥ó¥È¡¦¥¹¥ì¥Ã¥É¤ÏÉ¬¤ºÀèÆ¬¤Ë¤¢¤ë¤Ï¤º¤Ê¤Î¤Ç¡¤ÀèÆ¬¤«¤éÈ´¤­½Ğ¤¹ */
+  /* ã‚«ãƒ¬ãƒ³ãƒˆãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ã¯å¿…ãšå…ˆé ­ã«ã‚ã‚‹ã¯ãšãªã®ã§ï¼Œå…ˆé ­ã‹ã‚‰æŠœãå‡ºã™ */
   readyque.head = current->next;
   if (readyque.head == NULL) {
     readyque.tail = NULL;
@@ -62,14 +62,14 @@ static int getcurrent(void)
   return 0;
 }
 
-/* ¥«¥ì¥ó¥È¡¦¥¹¥ì¥Ã¥É¤ò¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼¤Ë·Ò¤²¤ë */
+/* ã‚«ãƒ¬ãƒ³ãƒˆãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ã«ç¹‹ã’ã‚‹ */
 static int putcurrent(void)
 {
   if (current == NULL) {
     return -1;
   }
 
-  /* ¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼¤ÎËöÈø¤ËÀÜÂ³¤¹¤ë */
+  /* ãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ã®æœ«å°¾ã«æ¥ç¶šã™ã‚‹ */
   if (readyque.tail) {
     readyque.tail->next = current;
   } else {
@@ -85,36 +85,36 @@ static void thread_end(void)
   kz_exit();
 }
 
-/* ¥¹¥ì¥Ã¥É¤Î¥¹¥¿¡¼¥È¡¦¥¢¥Ã¥× */
+/* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆãƒ»ã‚¢ãƒƒãƒ— */
 static void thread_init(kz_thread *thp)
 {
-  /* ¥¹¥ì¥Ã¥É¤Î¥á¥¤¥ó´Ø¿ô¤ò¸Æ¤Ó½Ğ¤¹ */
+  /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ¡ã‚¤ãƒ³é–¢æ•°ã‚’å‘¼ã³å‡ºã™ */
   thp->init.func(thp->init.argc, thp->init.argv);
   thread_end();
 }
 
-/* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤Î½èÍı(kz_run():¥¹¥ì¥Ã¥É¤Îµ¯Æ°) */
+/* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã®å‡¦ç†(kz_run():ã‚¹ãƒ¬ãƒƒãƒ‰ã®èµ·å‹•) */
 static kz_thread_id_t thread_run(kz_func_t func, char *name,
 				 int stacksize, int argc, char *argv[])
 {
   int i;
   kz_thread *thp;
   uint32 *sp;
-  extern char userstack; /* ¥ê¥ó¥«¡¦¥¹¥¯¥ê¥×¥È¤ÇÄêµÁ¤µ¤ì¤ë¥¹¥¿¥Ã¥¯ÎÎ°è */
+  extern char userstack; /* ãƒªãƒ³ã‚«ãƒ»ã‚¹ã‚¯ãƒªãƒ—ãƒˆã§å®šç¾©ã•ã‚Œã‚‹ã‚¹ã‚¿ãƒƒã‚¯é ˜åŸŸ */
   static char *thread_stack = &userstack;
 
-  /* ¶õ¤¤¤Æ¤¤¤ë¥¿¥¹¥¯¡¦¥³¥ó¥È¥í¡¼¥ë¡¦¥Ö¥í¥Ã¥¯¤ò¸¡º÷ */
+  /* ç©ºã„ã¦ã„ã‚‹ã‚¿ã‚¹ã‚¯ãƒ»ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒ»ãƒ–ãƒ­ãƒƒã‚¯ã‚’æ¤œç´¢ */
   for (i = 0; i < THREAD_NUM; i++) {
     thp = &threads[i];
-    if (!thp->init.func) /* ¸«¤Ä¤«¤Ã¤¿ */
+    if (!thp->init.func) /* è¦‹ã¤ã‹ã£ãŸ */
       break;
   }
-  if (i == THREAD_NUM) /* ¸«¤Ä¤«¤é¤Ê¤«¤Ã¤¿ */
+  if (i == THREAD_NUM) /* è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ */
     return -1;
 
   memset(thp, 0, sizeof(*thp));
 
-  /* ¥¿¥¹¥¯¡¦¥³¥ó¥È¥í¡¼¥ë¡¦¥Ö¥í¥Ã¥¯(TCB)¤ÎÀßÄê */
+  /* ã‚¿ã‚¹ã‚¯ãƒ»ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒ»ãƒ–ãƒ­ãƒƒã‚¯(TCB)ã®è¨­å®š */
   strcpy(thp->name, name);
   thp->next     = NULL;
 
@@ -122,18 +122,18 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   thp->init.argc = argc;
   thp->init.argv = argv;
 
-  /* ¥¹¥¿¥Ã¥¯ÎÎ°è¤ò³ÍÆÀ */
+  /* ã‚¹ã‚¿ãƒƒã‚¯é ˜åŸŸã‚’ç²å¾— */
   memset(thread_stack, 0, stacksize);
   thread_stack += stacksize;
 
-  thp->stack = thread_stack; /* ¥¹¥¿¥Ã¥¯¤òÀßÄê */
+  thp->stack = thread_stack; /* ã‚¹ã‚¿ãƒƒã‚¯ã‚’è¨­å®š */
 
-  /* ¥¹¥¿¥Ã¥¯¤Î½é´ü²½ */
+  /* ã‚¹ã‚¿ãƒƒã‚¯ã®åˆæœŸåŒ– */
   sp = (uint32 *)thp->stack;
   *(--sp) = (uint32)thread_end;
 
   /*
-   * ¥×¥í¥°¥é¥à¡¦¥«¥¦¥ó¥¿¤òÀßÄê¤¹¤ë¡¥
+   * ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚«ã‚¦ãƒ³ã‚¿ã‚’è¨­å®šã™ã‚‹ï¼
    */
   *(--sp) = (uint32)thread_init;
 
@@ -144,28 +144,28 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   *(--sp) = 0; /* ER2 */
   *(--sp) = 0; /* ER1 */
 
-  /* ¥¹¥ì¥Ã¥É¤Î¥¹¥¿¡¼¥È¡¦¥¢¥Ã¥×(thread_init())¤ËÅÏ¤¹°ú¿ô */
+  /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆãƒ»ã‚¢ãƒƒãƒ—(thread_init())ã«æ¸¡ã™å¼•æ•° */
   *(--sp) = (uint32)thp;  /* ER0 */
 
-  /* ¥¹¥ì¥Ã¥É¤Î¥³¥ó¥Æ¥­¥¹¥È¤òÀßÄê */
+  /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’è¨­å®š */
   thp->context.sp = (uint32)sp;
 
-  /* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤ò¸Æ¤Ó½Ğ¤·¤¿¥¹¥ì¥Ã¥É¤ò¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼¤ËÌá¤¹ */
+  /* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã‚’å‘¼ã³å‡ºã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ã«æˆ»ã™ */
   putcurrent();
 
-  /* ¿·µ¬ºîÀ®¤·¤¿¥¹¥ì¥Ã¥É¤ò¡¤¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼¤ËÀÜÂ³¤¹¤ë */
+  /* æ–°è¦ä½œæˆã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ï¼Œãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ã«æ¥ç¶šã™ã‚‹ */
   current = thp;
   putcurrent();
 
   return (kz_thread_id_t)current;
 }
 
-/* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤Î½èÍı(kz_exit():¥¹¥ì¥Ã¥É¤Î½ªÎ») */
+/* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã®å‡¦ç†(kz_exit():ã‚¹ãƒ¬ãƒƒãƒ‰ã®çµ‚äº†) */
 static int thread_exit(void)
 {
   /*
-   * ËÜÍè¤Ê¤é¥¹¥¿¥Ã¥¯¤â²òÊü¤·¤ÆºÆÍøÍÑ¤Ç¤­¤ë¤è¤¦¤Ë¤¹¤Ù¤­¤À¤¬¾ÊÎ¬¡¥
-   * ¤³¤Î¤¿¤á¡¤¥¹¥ì¥Ã¥É¤òÉÑÈË¤ËÀ¸À®¡¦¾Ãµî¤¹¤ë¤è¤¦¤Ê¤³¤È¤Ï¸½¾õ¤Ç¤Ç¤­¤Ê¤¤¡¥
+   * æœ¬æ¥ãªã‚‰ã‚¹ã‚¿ãƒƒã‚¯ã‚‚è§£æ”¾ã—ã¦å†åˆ©ç”¨ã§ãã‚‹ã‚ˆã†ã«ã™ã¹ãã ãŒçœç•¥ï¼
+   * ã“ã®ãŸã‚ï¼Œã‚¹ãƒ¬ãƒƒãƒ‰ã‚’é »ç¹ã«ç”Ÿæˆãƒ»æ¶ˆå»ã™ã‚‹ã‚ˆã†ãªã“ã¨ã¯ç¾çŠ¶ã§ã§ããªã„ï¼
    */
   puts(current->name);
   puts(" EXIT.\n");
@@ -173,25 +173,25 @@ static int thread_exit(void)
   return 0;
 }
 
-/* ³ä¹ş¤ß¥Ï¥ó¥É¥é¤ÎÅĞÏ¿ */
+/* å‰²è¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©ã®ç™»éŒ² */
 static int setintr(softvec_type_t type, kz_handler_t handler)
 {
   static void thread_intr(softvec_type_t type, unsigned long sp);
 
   /*
-   * ³ä¹ş¤ß¤ò¼õ¤±ÉÕ¤±¤ë¤¿¤á¤Ë¡¤¥½¥Õ¥È¥¦¥¨¥¢¡¦³ä¹ş¤ß¥Ù¥¯¥¿¤Ë
-   * OS¤Î³ä¹ş¤ß½èÍı¤ÎÆş¸ı¤È¤Ê¤ë´Ø¿ô¤òÅĞÏ¿¤¹¤ë¡¥
+   * å‰²è¾¼ã¿ã‚’å—ã‘ä»˜ã‘ã‚‹ãŸã‚ã«ï¼Œã‚½ãƒ•ãƒˆã‚¦ã‚¨ã‚¢ãƒ»å‰²è¾¼ã¿ãƒ™ã‚¯ã‚¿ã«
+   * OSã®å‰²è¾¼ã¿å‡¦ç†ã®å…¥å£ã¨ãªã‚‹é–¢æ•°ã‚’ç™»éŒ²ã™ã‚‹ï¼
    */
   softvec_setintr(type, thread_intr);
 
-  handlers[type] = handler; /* OSÂ¦¤«¤é¸Æ¤Ó½Ğ¤¹³ä¹ş¤ß¥Ï¥ó¥É¥é¤òÅĞÏ¿ */
+  handlers[type] = handler; /* OSå´ã‹ã‚‰å‘¼ã³å‡ºã™å‰²è¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©ã‚’ç™»éŒ² */
 
   return 0;
 }
 
 static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
 {
-  /* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤Î¼Â¹ÔÃæ¤Ëcurrent¤¬½ñ¤­´¹¤ï¤ë¤Î¤ÇÃí°Õ */
+  /* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã®å®Ÿè¡Œä¸­ã«currentãŒæ›¸ãæ›ã‚ã‚‹ã®ã§æ³¨æ„ */
   switch (type) {
   case KZ_SYSCALL_TYPE_RUN: /* kz_run() */
     p->un.run.ret = thread_run(p->un.run.func, p->un.run.name,
@@ -199,7 +199,7 @@ static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
 			       p->un.run.argc, p->un.run.argv);
     break;
   case KZ_SYSCALL_TYPE_EXIT: /* kz_exit() */
-    /* TCB¤¬¾Ãµî¤µ¤ì¤ë¤Î¤Ç¡¤Ìá¤êÃÍ¤ò½ñ¤­¹ş¤ó¤Ç¤Ï¤¤¤±¤Ê¤¤ */
+    /* TCBãŒæ¶ˆå»ã•ã‚Œã‚‹ã®ã§ï¼Œæˆ»ã‚Šå€¤ã‚’æ›¸ãè¾¼ã‚“ã§ã¯ã„ã‘ãªã„ */
     thread_exit();
     break;
   default:
@@ -207,26 +207,26 @@ static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
   }
 }
 
-/* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤Î½èÍı */
+/* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã®å‡¦ç† */
 static void syscall_proc(kz_syscall_type_t type, kz_syscall_param_t *p)
 {
   /*
-   * ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤ò¸Æ¤Ó½Ğ¤·¤¿¥¹¥ì¥Ã¥É¤ò¥ì¥Ç¥£¡¼¡¦¥­¥å¡¼¤«¤é
-   * ³°¤·¤¿¾õÂÖ¤Ç½èÍı´Ø¿ô¤ò¸Æ¤Ó½Ğ¤¹¡¥¤³¤Î¤¿¤á¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤ò
-   * ¸Æ¤Ó½Ğ¤·¤¿¥¹¥ì¥Ã¥É¤ò¤½¤Î¤Ş¤ŞÆ°ºî·ÑÂ³¤µ¤»¤¿¤¤¾ì¹ç¤Ë¤Ï¡¤
-   * ½èÍı´Ø¿ô¤ÎÆâÉô¤Ç putcurrent() ¤ò¹Ô¤¦É¬Í×¤¬¤¢¤ë¡¥
+   * ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã‚’å‘¼ã³å‡ºã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ãƒ¬ãƒ‡ã‚£ãƒ¼ãƒ»ã‚­ãƒ¥ãƒ¼ã‹ã‚‰
+   * å¤–ã—ãŸçŠ¶æ…‹ã§å‡¦ç†é–¢æ•°ã‚’å‘¼ã³å‡ºã™ï¼ã“ã®ãŸã‚ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ã‚’
+   * å‘¼ã³å‡ºã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ãã®ã¾ã¾å‹•ä½œç¶™ç¶šã•ã›ãŸã„å ´åˆã«ã¯ï¼Œ
+   * å‡¦ç†é–¢æ•°ã®å†…éƒ¨ã§ putcurrent() ã‚’è¡Œã†å¿…è¦ãŒã‚ã‚‹ï¼
    */
   getcurrent();
   call_functions(type, p);
 }
 
-/* ¥¹¥ì¥Ã¥É¤Î¥¹¥±¥¸¥å¡¼¥ê¥ó¥° */
+/* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒªãƒ³ã‚° */
 static void schedule(void)
 {
-  if (!readyque.head) /* ¸«¤Ä¤«¤é¤Ê¤«¤Ã¤¿ */
+  if (!readyque.head) /* è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ */
     kz_sysdown();
 
-  current = readyque.head; /* ¥«¥ì¥ó¥È¡¦¥¹¥ì¥Ã¥É¤ËÀßÄê¤¹¤ë */
+  current = readyque.head; /* ã‚«ãƒ¬ãƒ³ãƒˆãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ã«è¨­å®šã™ã‚‹ */
 }
 
 static void syscall_intr(void)
@@ -238,41 +238,41 @@ static void softerr_intr(void)
 {
   puts(current->name);
   puts(" DOWN.\n");
-  getcurrent(); /* ¥ì¥Ç¥£¡¼¥­¥å¡¼¤«¤é³°¤¹ */
-  thread_exit(); /* ¥¹¥ì¥Ã¥É½ªÎ»¤¹¤ë */
+  getcurrent(); /* ãƒ¬ãƒ‡ã‚£ãƒ¼ã‚­ãƒ¥ãƒ¼ã‹ã‚‰å¤–ã™ */
+  thread_exit(); /* ã‚¹ãƒ¬ãƒƒãƒ‰çµ‚äº†ã™ã‚‹ */
 }
 
-/* ³ä¹ş¤ß½èÍı¤ÎÆş¸ı´Ø¿ô */
+/* å‰²è¾¼ã¿å‡¦ç†ã®å…¥å£é–¢æ•° */
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
-  /* ¥«¥ì¥ó¥È¡¦¥¹¥ì¥Ã¥É¤Î¥³¥ó¥Æ¥­¥¹¥È¤òÊİÂ¸¤¹¤ë */
+  /* ã‚«ãƒ¬ãƒ³ãƒˆãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’ä¿å­˜ã™ã‚‹ */
   current->context.sp = sp;
 
   /*
-   * ³ä¹ş¤ß¤´¤È¤Î½èÍı¤ò¼Â¹Ô¤¹¤ë¡¥
-   * SOFTVEC_TYPE_SYSCALL, SOFTVEC_TYPE_SOFTERR ¤Î¾ì¹ç¤Ï
-   * syscall_intr(), softerr_intr() ¤¬¥Ï¥ó¥É¥é¤ËÅĞÏ¿¤µ¤ì¤Æ¤¤¤ë¤Î¤Ç¡¤
-   * ¤½¤ì¤é¤¬¼Â¹Ô¤µ¤ì¤ë¡¥
+   * å‰²è¾¼ã¿ã”ã¨ã®å‡¦ç†ã‚’å®Ÿè¡Œã™ã‚‹ï¼
+   * SOFTVEC_TYPE_SYSCALL, SOFTVEC_TYPE_SOFTERR ã®å ´åˆã¯
+   * syscall_intr(), softerr_intr() ãŒãƒãƒ³ãƒ‰ãƒ©ã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã®ã§ï¼Œ
+   * ãã‚Œã‚‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ï¼
    */
   if (handlers[type])
     handlers[type]();
 
-  schedule(); /* ¥¹¥ì¥Ã¥É¤Î¥¹¥±¥¸¥å¡¼¥ê¥ó¥° */
+  schedule(); /* ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒªãƒ³ã‚° */
 
   /*
-   * ¥¹¥ì¥Ã¥É¤Î¥Ç¥£¥¹¥Ñ¥Ã¥Á
-   * (dispatch()´Ø¿ô¤ÎËÜÂÎ¤Ïstartup.s¤Ë¤¢¤ê¡¤¥¢¥»¥ó¥Ö¥é¤Çµ­½Ò¤µ¤ì¤Æ¤¤¤ë)
+   * ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ‡ã‚£ã‚¹ãƒ‘ãƒƒãƒ
+   * (dispatch()é–¢æ•°ã®æœ¬ä½“ã¯startup.sã«ã‚ã‚Šï¼Œã‚¢ã‚»ãƒ³ãƒ–ãƒ©ã§è¨˜è¿°ã•ã‚Œã¦ã„ã‚‹)
    */
   dispatch(&current->context);
-  /* ¤³¤³¤Ë¤ÏÊÖ¤Ã¤Æ¤³¤Ê¤¤ */
+  /* ã“ã“ã«ã¯è¿”ã£ã¦ã“ãªã„ */
 }
 
 void kz_start(kz_func_t func, char *name, int stacksize,
 	      int argc, char *argv[])
 {
   /*
-   * °Ê¹ß¤Ç¸Æ¤Ó½Ğ¤¹¥¹¥ì¥Ã¥É´ØÏ¢¤Î¥é¥¤¥Ö¥é¥ê´Ø¿ô¤ÎÆâÉô¤Ç current ¤ò
-   * ¸«¤Æ¤¤¤ë¾ì¹ç¤¬¤¢¤ë¤Î¤Ç¡¤current ¤ò NULL ¤Ë½é´ü²½¤·¤Æ¤ª¤¯¡¥
+   * ä»¥é™ã§å‘¼ã³å‡ºã™ã‚¹ãƒ¬ãƒƒãƒ‰é–¢é€£ã®ãƒ©ã‚¤ãƒ–ãƒ©ãƒªé–¢æ•°ã®å†…éƒ¨ã§ current ã‚’
+   * è¦‹ã¦ã„ã‚‹å ´åˆãŒã‚ã‚‹ã®ã§ï¼Œcurrent ã‚’ NULL ã«åˆæœŸåŒ–ã—ã¦ãŠãï¼
    */
   current = NULL;
 
@@ -280,17 +280,17 @@ void kz_start(kz_func_t func, char *name, int stacksize,
   memset(threads,  0, sizeof(threads));
   memset(handlers, 0, sizeof(handlers));
 
-  /* ³ä¹ş¤ß¥Ï¥ó¥É¥é¤ÎÅĞÏ¿ */
-  setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë */
-  setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); /* ¥À¥¦¥óÍ×°øÈ¯À¸ */
+  /* å‰²è¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©ã®ç™»éŒ² */
+  setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ« */
+  setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); /* ãƒ€ã‚¦ãƒ³è¦å› ç™ºç”Ÿ */
 
-  /* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ëÈ¯¹ÔÉÔ²Ä¤Ê¤Î¤ÇÄ¾ÀÜ´Ø¿ô¤ò¸Æ¤Ó½Ğ¤·¤Æ¥¹¥ì¥Ã¥ÉºîÀ®¤¹¤ë */
+  /* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«ç™ºè¡Œä¸å¯ãªã®ã§ç›´æ¥é–¢æ•°ã‚’å‘¼ã³å‡ºã—ã¦ã‚¹ãƒ¬ãƒƒãƒ‰ä½œæˆã™ã‚‹ */
   current = (kz_thread *)thread_run(func, name, stacksize, argc, argv);
 
-  /* ºÇ½é¤Î¥¹¥ì¥Ã¥É¤òµ¯Æ° */
+  /* æœ€åˆã®ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’èµ·å‹• */
   dispatch(&current->context);
 
-  /* ¤³¤³¤Ë¤ÏÊÖ¤Ã¤Æ¤³¤Ê¤¤ */
+  /* ã“ã“ã«ã¯è¿”ã£ã¦ã“ãªã„ */
 }
 
 void kz_sysdown(void)
@@ -300,10 +300,10 @@ void kz_sysdown(void)
     ;
 }
 
-/* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¸Æ¤Ó½Ğ¤·ÍÑ¥é¥¤¥Ö¥é¥ê´Ø¿ô */
+/* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ«å‘¼ã³å‡ºã—ç”¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªé–¢æ•° */
 void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
 {
   current->syscall.type  = type;
   current->syscall.param = param;
-  asm volatile ("trapa #0"); /* ¥È¥é¥Ã¥×³ä¹ş¤ßÈ¯¹Ô */
+  asm volatile ("trapa #0"); /* ãƒˆãƒ©ãƒƒãƒ—å‰²è¾¼ã¿ç™ºè¡Œ */
 }

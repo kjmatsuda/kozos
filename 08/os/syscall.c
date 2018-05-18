@@ -2,7 +2,7 @@
 #include "kozos.h"
 #include "syscall.h"
 
-/* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë */
+/* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚³ãƒ¼ãƒ« */
 
 kz_thread_id_t kz_run(kz_func_t func, char *name, int stacksize,
 		      int argc, char *argv[])

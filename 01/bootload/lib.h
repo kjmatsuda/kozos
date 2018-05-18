@@ -1,7 +1,7 @@
 #ifndef _LIB_H_INCLUDED_
 #define _LIB_H_INCLUDED_
 
-int putc(unsigned char c);    /* １矢机流慨 */
-int puts(unsigned char *str); /* 矢机误流慨 */
+int putc(unsigned char c);    /* 锛戞枃瀛楅�佷俊 */
+int puts(unsigned char *str); /* 鏂囧瓧鍒楅�佷俊 */
 
 #endif

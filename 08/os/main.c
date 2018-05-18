@@ -3,7 +3,7 @@
 #include "interrupt.h"
 #include "lib.h"
 
-/* ¥·¥¹¥Æ¥à¡¦¥¿¥¹¥¯¤È¥æ¡¼¥¶¡¦¥¹¥ì¥Ã¥É¤Îµ¯Æ° */
+/* ã‚·ã‚¹ãƒ†ãƒ ãƒ»ã‚¿ã‚¹ã‚¯ã¨ãƒ¦ãƒ¼ã‚¶ãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ã®èµ·å‹• */
 static int start_threads(int argc, char *argv[])
 {
   kz_run(test08_1_main, "command", 0x100, 0, NULL);
@@ -12,13 +12,13 @@ static int start_threads(int argc, char *argv[])
 
 int main(void)
 {
-  INTR_DISABLE; /* ³ä¹ş¤ßÌµ¸ú¤Ë¤¹¤ë */
+  INTR_DISABLE; /* å‰²è¾¼ã¿ç„¡åŠ¹ã«ã™ã‚‹ */
 
   puts("kozos boot succeed!\n");
 
-  /* OS¤ÎÆ°ºî³«»Ï */
+  /* OSã®å‹•ä½œé–‹å§‹ */
   kz_start(start_threads, "start", 0x100, 0, NULL);
-  /* ¤³¤³¤Ë¤ÏÌá¤Ã¤Æ¤³¤Ê¤¤ */
+  /* ã“ã“ã«ã¯æˆ»ã£ã¦ã“ãªã„ */
 
   return 0;
 }

@@ -9,31 +9,31 @@ int test11_1_main(int argc, char *argv[])
 
   puts("test11_1 started.\n");
 
-  /* ÀÅÅªÎÎ°è¤ò¥á¥Ã¥»¡¼¥¸¤Ç¼õ¿® */
+  /* é™çš„é ˜åŸŸã‚’ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§å—ä¿¡ */
   puts("test11_1 recv in.\n");
-  kz_recv(MSGBOX_ID_MSGBOX1, &size, &p); /* ¼õ¿® */
+  kz_recv(MSGBOX_ID_MSGBOX1, &size, &p); /* å—ä¿¡ */
   puts("test11_1 recv out.\n");
   puts(p);
 
-  /* Æ°Åª¤Ë³ÍÆÀ¤·¤¿ÎÎ°è¤ò¥á¥Ã¥»¡¼¥¸¤Ç¼õ¿® */
+  /* å‹•çš„ã«ç²å¾—ã—ãŸé ˜åŸŸã‚’ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§å—ä¿¡ */
   puts("test11_1 recv in.\n");
-  kz_recv(MSGBOX_ID_MSGBOX1, &size, &p); /* ¼õ¿® */
+  kz_recv(MSGBOX_ID_MSGBOX1, &size, &p); /* å—ä¿¡ */
   puts("test11_1 recv out.\n");
   puts(p);
-  kz_kmfree(p); /* ¥á¥â¥ê²òÊü */
+  kz_kmfree(p); /* ãƒ¡ãƒ¢ãƒªè§£æ”¾ */
 
-  /* ÀÅÅªÎÎ°è¤ò¥á¥Ã¥»¡¼¥¸¤ÇÁ÷¿® */
+  /* é™çš„é ˜åŸŸã‚’ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§é€ä¿¡ */
   puts("test11_1 send in.\n");
-  kz_send(MSGBOX_ID_MSGBOX2, 15, "static memory\n"); /* Á÷¿® */
+  kz_send(MSGBOX_ID_MSGBOX2, 15, "static memory\n"); /* é€ä¿¡ */
   puts("test11_1 send out.\n");
 
-  /* Æ°Åª¤Ë³ÍÆÀ¤·¤¿ÎÎ°è¤ò¥á¥Ã¥»¡¼¥¸¤ÇÁ÷¿® */
-  p = kz_kmalloc(18); /* ¥á¥â¥ê³ÍÆÀ */
+  /* å‹•çš„ã«ç²å¾—ã—ãŸé ˜åŸŸã‚’ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§é€ä¿¡ */
+  p = kz_kmalloc(18); /* ãƒ¡ãƒ¢ãƒªç²å¾— */
   strcpy(p, "allocated memory\n");
   puts("test11_1 send in.\n");
-  kz_send(MSGBOX_ID_MSGBOX2, 18, p); /* Á÷¿® */
+  kz_send(MSGBOX_ID_MSGBOX2, 18, p); /* é€ä¿¡ */
   puts("test11_1 send out.\n");
-  /* ¥á¥â¥ê²òÊü¤Ï¼õ¿®Â¦¤Ç¹Ô¤¦¤Î¤Ç¡¤¤³¤³¤Ç¤ÏÉÔÍ× */
+  /* ãƒ¡ãƒ¢ãƒªè§£æ”¾ã¯å—ä¿¡å´ã§è¡Œã†ã®ã§ï¼Œã“ã“ã§ã¯ä¸è¦ */
 
   puts("test11_1 exit.\n");
 

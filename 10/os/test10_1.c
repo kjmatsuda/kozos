@@ -11,7 +11,7 @@ int test10_1_main(int argc, char *argv[])
 
   for (i = 4; i <= 56; i += 4) {
 
-    /* ¥á¥â¥ê¤òÆ°Åª¤Ë³ÍÆÀ */
+    /* ãƒ¡ãƒ¢ãƒªã‚’å‹•çš„ã«ç²å¾— */
     p1 = kz_kmalloc(i);
     p2 = kz_kmalloc(i);
 
@@ -25,7 +25,7 @@ int test10_1_main(int argc, char *argv[])
     putxval((unsigned long)p1, 8); puts(" "); puts(p1); puts("\n");
     putxval((unsigned long)p2, 8); puts(" "); puts(p2); puts("\n");
 
-    /* ¥á¥â¥ê²òÊü */
+    /* ãƒ¡ãƒ¢ãƒªè§£æ”¾ */
     kz_kmfree(p1);
     kz_kmfree(p2);
   }

@@ -29,7 +29,7 @@ static void intr(softvec_type_t type, unsigned long sp)
 
 int main(void)
 {
-  INTR_DISABLE; /* ЁД╧Ч╓ъл╣╦З╓к╓╧╓К */
+  INTR_DISABLE; /* Е┴╡Х╬╪Ц│©Г└║Е┼╧Ц│╚Ц│≥Ц┌▀ */
 
   puts("kozos boot succeed!\n");
 
@@ -38,9 +38,9 @@ int main(void)
 
   puts("> ");
 
-  INTR_ENABLE; /* ЁД╧Ч╓ъм╜╦З╓к╓╧╓К */
+  INTR_ENABLE; /* Е┴╡Х╬╪Ц│©Ф°┴Е┼╧Ц│╚Ц│≥Ц┌▀ */
   while (1) {
-    asm volatile ("sleep"); /* ╬йеено╔Б║╪╔и╓к╟э╧т */
+    asm volatile ("sleep"); /* Г°│И⌡╩Е┼⌡Ц┐╒Ц┐╪Ц┐┴Ц│╚Г╖╩Х║▄ */
   }
 
   return 0;

@@ -3,7 +3,7 @@
 
 #include "defines.h"
 
-/* �����ƥࡦ�������ֹ����� */
+/* システム・コール番号の定義 */
 typedef enum {
   KZ_SYSCALL_TYPE_RUN = 0,
   KZ_SYSCALL_TYPE_EXIT,
@@ -16,7 +16,7 @@ typedef enum {
   KZ_SYSCALL_TYPE_KMFREE,
 } kz_syscall_type_t;
 
-/* �����ƥࡦ������ƤӽФ����Υѥ�᡼����Ǽ������ */
+/* システム・コール呼び出し時のパラメータ格納域の定義 */
 typedef struct {
   union {
     struct {
