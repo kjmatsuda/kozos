@@ -8,6 +8,8 @@
 #define THREAD_NUM 6
 #define THREAD_NAME_SIZE 15
 
+// TODO それぞれの関数がユーザモード、カーネルモードのどちらで呼ばれているのか、分かるようになった方がいいのでは？
+
 /* スレッド・コンテキスト */
 typedef struct _kz_context {
   uint32 sp; /* スタック・ポインタ */
@@ -82,6 +84,7 @@ static int putcurrent(void)
 
 static void thread_end(void)
 {
+  // TODO kz_exitでスレッドが消去されるらしいがなぜ？
   kz_exit();
 }
 
@@ -130,17 +133,21 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
 
   /* スタックの初期化 */
   sp = (uint32 *)thp->stack;
+    // TODO ここでthread_endをスタックに設定しているが、どういう経路で呼ばれる？
   *(--sp) = (uint32)thread_end;
 
   /*
    * プログラム・カウンタを設定する．
    */
+// TODO ここでthread_initをスタックに設定しているが、どういう経路で呼ばれる？
   *(--sp) = (uint32)thread_init;
 
+  // TODO ここで各レジスタを0に設定しているのはなぜ？
   *(--sp) = 0; /* ER6 */
   *(--sp) = 0; /* ER5 */
   *(--sp) = 0; /* ER4 */
   *(--sp) = 0; /* ER3 */
+  // 関数呼出時はER2,ER1,ER0の値が渡される(P.157)
   *(--sp) = 0; /* ER2 */
   *(--sp) = 0; /* ER1 */
 
@@ -157,6 +164,7 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   current = thp;
   putcurrent();
 
+  // TODO returnしたcurrentはどう使用される？
   return (kz_thread_id_t)current;
 }
 
@@ -307,3 +315,4 @@ void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
   current->syscall.param = param;
   asm volatile ("trapa #0"); /* トラップ割込み発行 */
 }
+

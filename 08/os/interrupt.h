@@ -20,7 +20,9 @@ int softvec_init(void);
 /* ソフトウエア・割込みベクタの設定 */
 int softvec_setintr(softvec_type_t type, softvec_handler_t handler);
 
+// TODO 共通割込みハンドラはどの割り込みを受け付ける？
 /* 共通割込みハンドラ */
 void interrupt(softvec_type_t type, unsigned long sp);
 
 #endif
+
