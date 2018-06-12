@@ -4,6 +4,8 @@ ENTRY("_start")
 
 MEMORY
 {
+    /* TODO rwx とか rw というのはどういう意味？ */
+    /* TODO ramの開始アドレス0xffbf20、サイズ16KBは仕様書のどこに記載？ */ 
 	ramall(rwx)	: o = 0xffbf20, l = 0x004000 /* 16KB */
 	softvec(rw)	: o = 0xffbf20, l = 0x000040 /* top of RAM */
 	ram(rwx)	: o = 0xffc020, l = 0x003f00
@@ -19,14 +21,15 @@ SECTIONS
 	} > softvec
 
 	.text : {
-		_text_start = . ;
+		_text_start = . ; /* TODO .というのは現在のアドレスという意味？だからramの先頭に来るということ？ */
 		*(.text)
 		_etext = . ;
 	} > ram
 
+    /* TODO rodataとは何？ */
 	.rodata : {
 		_rodata_start = . ;
-		*(.strings)
+		*(.strings) /* TODO *(.strings)はどういう意味？ */
 		*(.rodata)
 		*(.rodata.*)
 		_erodata = . ;
@@ -38,6 +41,7 @@ SECTIONS
 		_edata = . ;
 	} > ram
 
+    /* TODO bssとは？*/
 	.bss : {
 		_bss_start = . ;
 		*(.bss)

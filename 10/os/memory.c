@@ -29,8 +29,10 @@ static kzmem_pool pool[] = {
 /* メモリ・プールの初期化 */
 static int kzmem_init_pool(kzmem_pool *p)
 {
+  /* m:メモリプールのアドレスを受け取って、
+     サイズ、空き領域ブロックの件数、空き領域の先頭ブロックのアドレスを設定する */
   int i;
-  kzmem_block *mp;
+  kzmem_block *mp; /* m:空き領域のアドレス */
   kzmem_block **mpp;
   extern char freearea; /* リンカ・スクリプトで定義される空き領域 */
   static char *area = &freearea;
@@ -38,7 +40,7 @@ static int kzmem_init_pool(kzmem_pool *p)
   mp = (kzmem_block *)area;
 
   /* 個々の領域をすべて解放済みリンクリストに繋ぐ */
-  mpp = &p->free;
+  mpp = &p->free; /* m:メモリプールの空き領域の先頭ブロックアドレスのアドレスをmppに設定する */
   for (i = 0; i < p->num; i++) {
     *mpp = mp;
     memset(mp, 0, sizeof(*mp));
@@ -68,9 +70,12 @@ void *kzmem_alloc(int size)
   kzmem_block *mp;
   kzmem_pool *p;
 
+  /* m:ブロックサイズの小さいプールから順に見ていく */
   for (i = 0; i < MEMORY_AREA_NUM; i++) {
     p = &pool[i];
     if (size <= p->size - sizeof(kzmem_block)) {
+      /* m:確保しようとしている領域のサイズが(現在のプールのブロックサイズ - kzmem_blockのエントリのサイズ以下である場合 */
+      /* TODO 上記の条件式が分からない */
       if (p->free == NULL) { /* 解放済み領域が無い(メモリ・ブロック不足) */
 	kz_sysdown();
 	return NULL;

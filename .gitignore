@@ -4,4 +4,6 @@ GTAGS
 kzload
 kzload.elf
 kzload.mot
+kozos
+kozos.elf
 *.o
