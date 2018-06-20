@@ -46,6 +46,7 @@ struct h8_3069f_sci {
 #define H8_3069F_SCI_SSR_RDRF   (1<<6) /* 受信完了 */
 #define H8_3069F_SCI_SSR_TDRE   (1<<7) /* 送信完了 */
 
+// SCIのレジスタの先頭アドレスの配列
 static struct {
   volatile struct h8_3069f_sci *sci;
 } regs[SERIAL_SCI_NUM] = {
@@ -57,12 +58,22 @@ static struct {
 /* デバイス初期化 */
 int serial_init(int index)
 {
+  // H8/3069Fのマニュアル 13節を参照
   volatile struct h8_3069f_sci *sci = regs[index].sci;
-
+  /* SCR(シリアルコントロールレジスタ)は送受信動作や送受信に関わる割り込みの許可、禁止を設定する。0が禁止で1が許可 */
   sci->scr = 0;
+  /* SMR(シリアルモードレジスタ)ではシリアル通信フォーマット(ストップビット、パリティetc)と、ボーレートジェネレータの
+   クロックソースを選択する */
   sci->smr = 0;
+  // BRRはマニュアルの13.2.8節を参照 (p535 ビットレート 9600bpsの行)
   sci->brr = 64; /* 20MHzのクロックから9600bpsを生成(25MHzの場合は80にする) */
+  /*
+    ビット4のレシーブイネーブル(受信許可)、ビット5のトランスミットイネーブル(送信許可)を1にしている。
+    ビット2のトランスミットエンドインタラプト(送信終了割り込み)、ビット7のトランスミット(送信データエンプティ割り込み)も
+    1にするのかなと思いきや、そうでもないようだ。よく分からない。
+  */
   sci->scr = H8_3069F_SCI_SCR_RE | H8_3069F_SCI_SCR_TE; /* 送受信可能 */
+  /* SSR(シリアルステータスレジスタ)はSCIの動作状態を示すステータスフラグと、マルチプロセッサビットを内蔵 */
   sci->ssr = 0;
 
   return 0;
@@ -88,3 +99,4 @@ int serial_send_byte(int index, unsigned char c)
 
   return 0;
 }
+
