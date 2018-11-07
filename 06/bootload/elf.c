@@ -92,3 +92,4 @@ char *elf_load(char *buf)
 
   return (char *)header->entry_point;
 }
+

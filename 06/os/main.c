@@ -14,6 +14,7 @@ int main(void)
 
     if (!strncmp(buf, "echo", 4)) {
       puts(buf + 4);
+
       puts("\n");
     } else if (!strcmp(buf, "exit")) {
       break;
@@ -24,3 +25,4 @@ int main(void)
 
   return 0;
 }
+

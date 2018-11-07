@@ -93,6 +93,7 @@ int serial_send_byte(int index, unsigned char c)
 int serial_is_recv_enable(int index)
 {
   volatile struct h8_3069f_sci *sci = regs[index].sci;
+  // TODO H8/3069 の何ページに記載されているか確認する
   return (sci->ssr & H8_3069F_SCI_SSR_RDRF);
 }
 
@@ -106,6 +107,7 @@ unsigned char serial_recv_byte(int index)
   while (!serial_is_recv_enable(index))
     ;
   c = sci->rdr;
+  // TODO H8/3069 の何ページに記載されているか確認する
   sci->ssr &= ~H8_3069F_SCI_SSR_RDRF; /* 受信完了 */
 
   return c;
