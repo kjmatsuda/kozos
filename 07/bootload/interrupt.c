@@ -7,7 +7,7 @@ int softvec_init(void)
 {
   int type;
   for (type = 0; type < SOFTVEC_TYPE_NUM; type++)
-    softvec_setintr(type, NULL);
+    softvec_setintr(type, NULL); // ソフトウェア割込みベクタに初期値NULLを設定する
   return 0;
 }
 

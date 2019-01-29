@@ -8,11 +8,12 @@ _start:
 
 1:
 	bra	1b
-
 	.global	_dispatch
 #	.type	_dispatch,@function
 _dispatch:
+    ;; er0が引数で指定した&current->contextの値。つまりカレントスレッドのスタックポインタ？
 	mov.l	@er0,er7
+    ;; 汎用レジスタを復元する
 	mov.l	@er7+,er0
 	mov.l	@er7+,er1
 	mov.l	@er7+,er2

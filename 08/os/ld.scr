@@ -4,8 +4,6 @@ ENTRY("_start")
 
 MEMORY
 {
-    // TODO ROM領域の定義はどこへ行った？
-    // TODO RAMの何バイト目から何バイト目までは割り込みハンドラ用の領域とか仕様で決まってるんじゃなかったっけ？
 	ramall(rwx)	: o = 0xffbf20, l = 0x004000 /* 16KB */
 	softvec(rw)	: o = 0xffbf20, l = 0x000040 /* top of RAM */
 	ram(rwx)	: o = 0xffc020, l = 0x003f00

@@ -2,11 +2,12 @@
 #define _INTERRUPT_H_INCLUDED_
 
 /* 以下はリンカ・スクリプトで定義してあるシンボル */
-extern char softvec;
-#define SOFTVEC_ADDR (&softvec)
+extern char softvec; 
+#define SOFTVEC_ADDR (&softvec) // RAMの先頭を指す
 
 typedef short softvec_type_t;
 
+// ソフトウェア割り込みベクタハンドラの型
 typedef void (*softvec_handler_t)(softvec_type_t type, unsigned long sp);
 
 #define SOFTVECS ((softvec_handler_t *)SOFTVEC_ADDR)
@@ -20,7 +21,6 @@ int softvec_init(void);
 /* ソフトウエア・割込みベクタの設定 */
 int softvec_setintr(softvec_type_t type, softvec_handler_t handler);
 
-// TODO 共通割込みハンドラはどの割り込みを受け付ける？
 /* 共通割込みハンドラ */
 void interrupt(softvec_type_t type, unsigned long sp);
 

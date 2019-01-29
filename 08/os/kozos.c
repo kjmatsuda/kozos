@@ -8,9 +8,8 @@
 #define THREAD_NUM 6
 #define THREAD_NAME_SIZE 15
 
-// TODO それぞれの関数がユーザモード、カーネルモードのどちらで呼ばれているのか、分かるようになった方がいいのでは？
-
 /* スレッド・コンテキスト */
+
 typedef struct _kz_context {
   uint32 sp; /* スタック・ポインタ */
 } kz_context;
@@ -133,13 +132,15 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
 
   /* スタックの初期化 */
   sp = (uint32 *)thp->stack;
-    // TODO ここでthread_endをスタックに設定しているが、どういう経路で呼ばれる？
+  // TODO ここでthread_endをスタックに設定しているが、どういう経路で呼ばれる？
   *(--sp) = (uint32)thread_end;
 
   /*
    * プログラム・カウンタを設定する．
    */
-// TODO ここでthread_initをスタックに設定しているが、どういう経路で呼ばれる？
+  // TODO thread_initでは何をする？
+  // TODO ここでthread_initをスタックに設定しているが、どういう経路で呼ばれる？
+  // TODO thread_initがメイン関数？それともthread_run? kz_run? 
   *(--sp) = (uint32)thread_init;
 
   // TODO ここで各レジスタを0に設定しているのはなぜ？
@@ -184,8 +185,9 @@ static int thread_exit(void)
 /* 割込みハンドラの登録 */
 static int setintr(softvec_type_t type, kz_handler_t handler)
 {
+  // TODO あれ？interrupt.cのinterruptってなんのためにあるんだっけ？
   static void thread_intr(softvec_type_t type, unsigned long sp);
-
+  // TODO thread_intrが呼ばれて、handlerが呼ばれるまでの流れを理解する (p320に書いてる)
   /*
    * 割込みを受け付けるために，ソフトウエア・割込みベクタに
    * OSの割込み処理の入口となる関数を登録する．
@@ -250,12 +252,16 @@ static void softerr_intr(void)
   thread_exit(); /* スレッド終了する */
 }
 
+// TODO システムコール実行時にこの関数に引数type(SOFTVEC_TYPE_SYSCALL)とsp(カレントスレッドのスタック？)が渡される。どうやって渡されるか理解する
+// thread_intrはソフトウェアベクタ割込みで実行される。
+// handlersがソフトウェアベクタ割込み発生時のハンドラ。
 /* 割込み処理の入口関数 */
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
   /* カレント・スレッドのコンテキストを保存する */
   current->context.sp = sp;
 
+  // TODO ハンドラとdispatchどっちが本命？
   /*
    * 割込みごとの処理を実行する．
    * SOFTVEC_TYPE_SYSCALL, SOFTVEC_TYPE_SOFTERR の場合は
@@ -264,9 +270,12 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
    */
   if (handlers[type])
     handlers[type]();
-
+  
   schedule(); /* スレッドのスケジューリング */
 
+  // DONE ディスパッチで汎用レジスタをスタックから復元するということは
+  //      どこかで退避しているはずだ。どこでやってる？ -> thread_runでやってる
+  
   /*
    * スレッドのディスパッチ
    * (dispatch()関数の本体はstartup.sにあり，アセンブラで記述されている)
@@ -275,6 +284,14 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
   /* ここには返ってこない */
 }
 
+// DONE kz_run,kz_startの違いは？
+// 同じこと
+// - 引数
+//  
+// 違うこと
+// - 返り値。kz_runは
+// - kz_runはkz_syscallを呼ぶ
+//- kz_startはthread_runを呼ぶ
 void kz_start(kz_func_t func, char *name, int stacksize,
 	      int argc, char *argv[])
 {
@@ -289,12 +306,16 @@ void kz_start(kz_func_t func, char *name, int stacksize,
   memset(handlers, 0, sizeof(handlers));
 
   /* 割込みハンドラの登録 */
+  /* setintrで登録したハンドラは、該当の割込み発生時にthread_intrを経由して呼ばれる */
   setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* システム・コール */
   setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); /* ダウン要因発生 */
 
   /* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */
   current = (kz_thread *)thread_run(func, name, stacksize, argc, argv);
 
+  // TODO これは何を実行することになるんだろうか？
+  // current->contextにはスタックポインタが設定されている。
+  // それを引数で渡して、どうする？なんのため？
   /* 最初のスレッドを起動 */
   dispatch(&current->context);
 

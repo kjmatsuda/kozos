@@ -1,7 +1,7 @@
 #ifndef _INTERRUPT_H_INCLUDED_
 #define _INTERRUPT_H_INCLUDED_
 
-/* 以下はリンカ・スクリプトで定義してあるシンボル */
+/* 以下はリンカ・スクリプトでRAMの先頭アドレスに定義してあるシンボル */
 extern char softvec;
 #define SOFTVEC_ADDR (&softvec)
 
@@ -9,10 +9,10 @@ typedef short softvec_type_t;
 
 typedef void (*softvec_handler_t)(softvec_type_t type, unsigned long sp);
 
-#define SOFTVECS ((softvec_handler_t *)SOFTVEC_ADDR)
+#define SOFTVECS ((softvec_handler_t *)SOFTVEC_ADDR) // ソフトウェア割込みベクタ
 
-#define INTR_ENABLE  asm volatile ("andc.b #0x3f,ccr")
-#define INTR_DISABLE asm volatile ("orc.b #0xc0,ccr")
+#define INTR_ENABLE  asm volatile ("andc.b #0x3f,ccr") // 割込み有効化するインラインアセンブラ
+#define INTR_DISABLE asm volatile ("orc.b #0xc0,ccr")  // 割込み無効化するインラインアセンブラ
 
 /* ソフトウエア・割込みベクタの初期化 */
 int softvec_init(void);
