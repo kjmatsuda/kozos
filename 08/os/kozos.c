@@ -8,8 +8,6 @@
 #define THREAD_NUM 6
 #define THREAD_NAME_SIZE 15
 
-// TODO それぞれの関数がユーザモード、カーネルモードのどちらで呼ばれているのか、分かるようになった方がいいのでは？
-
 /* スレッド・コンテキスト */
 typedef struct _kz_context {
   uint32 sp; /* スタック・ポインタ */
@@ -139,10 +137,8 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   /*
    * プログラム・カウンタを設定する．
    */
-// TODO ここでthread_initをスタックに設定しているが、どういう経路で呼ばれる？
   *(--sp) = (uint32)thread_init;
 
-  // TODO ここで各レジスタを0に設定しているのはなぜ？
   *(--sp) = 0; /* ER6 */
   *(--sp) = 0; /* ER5 */
   *(--sp) = 0; /* ER4 */
@@ -164,7 +160,6 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   current = thp;
   putcurrent();
 
-  // TODO returnしたcurrentはどう使用される？
   return (kz_thread_id_t)current;
 }
 
