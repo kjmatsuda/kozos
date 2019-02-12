@@ -11,9 +11,9 @@ _start:
 	.global	_dispatch
 #	.type	_dispatch,@function
 _dispatch:
-    ;; er0が引数で指定した&current->contextの値。つまりカレントスレッドのスタックポインタ？
+;;; ディスパッチするスレッドのスタックポインタをspに設定
 	mov.l	@er0,er7
-    ;; 汎用レジスタを復元する
+;;; 汎用レジスタを復元
 	mov.l	@er7+,er0
 	mov.l	@er7+,er1
 	mov.l	@er7+,er2
@@ -21,4 +21,8 @@ _dispatch:
 	mov.l	@er7+,er4
 	mov.l	@er7+,er5
 	mov.l	@er7+,er6
+;;; マニュアルp828
+;;; rteの中身 CCR←@SP+, PC←@SP+
 	rte
+
+

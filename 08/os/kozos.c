@@ -138,12 +138,8 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   /*
    * プログラム・カウンタを設定する．
    */
-  // TODO thread_initでは何をする？
-  // TODO ここでthread_initをスタックに設定しているが、どういう経路で呼ばれる？
-  // TODO thread_initがメイン関数？それともthread_run? kz_run? 
   *(--sp) = (uint32)thread_init;
 
-  // TODO ここで各レジスタを0に設定しているのはなぜ？
   *(--sp) = 0; /* ER6 */
   *(--sp) = 0; /* ER5 */
   *(--sp) = 0; /* ER4 */
@@ -165,7 +161,6 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name,
   current = thp;
   putcurrent();
 
-  // TODO returnしたcurrentはどう使用される？
   return (kz_thread_id_t)current;
 }
 
