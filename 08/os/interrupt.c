@@ -24,6 +24,7 @@ int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
  */
 void interrupt(softvec_type_t type, unsigned long sp)
 {
+  // spには割り込み前のスレッドのスタックポインタが設定されている
   softvec_handler_t handler = SOFTVECS[type];
   if (handler)
     handler(type, sp);
