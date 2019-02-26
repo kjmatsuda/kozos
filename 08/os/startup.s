@@ -11,9 +11,10 @@ _start:
 	.global	_dispatch
 #	.type	_dispatch,@function
 _dispatch:
-;;; ディスパッチするスレッドのスタックポインタをspに設定
+;;; ディスパッチするスレッドのコンテキストをスタックポインタ(ER7)に設定
 	mov.l	@er0,er7
 ;;; 汎用レジスタを復元
+;; スレッドのスタート・アップ(thread_init())に渡す第1引数(TCBのアドレス)を設定
 	mov.l	@er7+,er0
 	mov.l	@er7+,er1
 	mov.l	@er7+,er2

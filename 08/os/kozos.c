@@ -244,8 +244,8 @@ static void softerr_intr(void)
   thread_exit(); /* スレッド終了する */
 }
 
-// thread_intrはソフトウェアベクタ割込みで実行される。
-// handlersがソフトウェアベクタ割込み発生時のハンドラ。
+// thread_intrはソフトウェア割込みハンドラ
+// handlersがOS側のハンドラ。
 /* 割込み処理の入口関数 */
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
