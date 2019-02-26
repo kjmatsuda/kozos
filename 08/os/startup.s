@@ -23,7 +23,7 @@ _dispatch:
 	mov.l	@er7+,er5
 	mov.l	@er7+,er6
 ;;; マニュアルp828
-;;; rteの中身 CCR←@SP+, PC←@SP+
+;;; rteの中身 CCR←@SP+, PC←@SP+    thread_initに処理が切り替わる
 	rte
 
 

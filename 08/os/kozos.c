@@ -303,8 +303,6 @@ void kz_start(kz_func_t func, char *name, int stacksize,
   /* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */
   current = (kz_thread *)thread_run(func, name, stacksize, argc, argv);
 
-  // current->contextにはスタックポインタが設定されている。
-  // それを引数で渡して、どうする？なんのため？
   /* 最初のスレッドを起動 */
   dispatch(&current->context);
 
