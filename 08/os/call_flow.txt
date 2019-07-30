@@ -1,7 +1,7 @@
 OSを起動してからtest08_1_mainが呼ばれるまでの流れを以下にまとめる。
 
 1. OSの初期化(割込みハンドラの設定、初期スレッドの起動)
-   1. start_threadsを引数にkz_startを実行
+   1. start_threads(main.c)を引数にkz_start(kozos.c)を実行
       1. 割込みハンドラを設定(setintr)
          1. kz_handler_t handlers[SOFTVEC_TYPE_SYSCALL]には syscall_intr (kozos.c)
          2. SOFTVECS[SOFTVEC_TYPE_SYSCALL]には thread_intr (kozos.c)
@@ -10,22 +10,23 @@ OSを起動してからtest08_1_mainが呼ばれるまでの流れを以下に�
          2. スレッドを生成(thp->init.funcにstart_threadsを設定)。(startスレッド)
          3. putcurrent()を実行し、カレントスレッドをレディキューの末尾に追加(ここではcurrentがnullなので空振り)
          4. startスレッドをカレントスレッドに設定(current = thp)
-         5. putcurrent()を実行し、カレントスレッドをレディキューの末尾に追加
-      3. dispatch(&current->context)を実行
+         5. putcurrent()を実行し、カレントスレッド(startスレッド)をレディキューの末尾に追加
+      3. dispatch(&current->context)を実行 (startup.s)
          1. 「mov.l	@er0,er7で」でスタックポインタにstartスレッドのスタックを指定
          2. 汎用レジスタER0~ER6を復元
          3. rte (CCR←@SP+, PC←@SP+)でプログラムカウンタにthread_initが設定されて、thread_init (kozos.c) が呼ばれる
 
 2. startスレッド(初期スレッド)
-   1. thread_init(スレッドのスタートアップ)を実行
+   1. thread_init(スレッドのスタートアップ)(kozos.c)を実行
       1. thp->init.func(つまりstart_threads (main.c))を実行
          1. test08_1_mainを引数にkz_runを呼び出す
             1. param.un.run.funcにtest08_1_mainを設定
             2. KZ_SYSCALL_TYPE_RUNを引数にkz_syscallを呼び出す
                1. current->syscall.type  = type; // typeはKZ_SYSCALL_TYPE_RUN
                2. current->syscall.param = param; // param.un.run.funcはtest08_1_main
-               3. asm volatile ("trapa #0")で_intr_syscallを呼び出す(intr.S)
-                  1. SOFTVEC_TYPE_SYSCALLを引数typeとしてinterruptを呼び出す
+                  - この時点の current は 1-2-3 で設定した startスレッド
+               3. asm volatile ("trapa #0")で_intr_syscallを呼び出す(bootload/intr.S)
+                  1. SOFTVEC_TYPE_SYSCALLを引数typeとしてinterrupt (os/interrupt.c)を呼び出す
                      1. ソフトウェア割込みベクタSOFTVECS[type]、つまりthread_intr呼び出す (kozos.c)
                         1. カレント・スレッドのコンテキストを保存する(current->context.sp = sp)
                         2. handlers[type](syscall_intr (kozos.c))を呼び出す
