@@ -19,10 +19,8 @@ static int xmodem_wait(void)
   long cnt = 0;
   // 参考書p127 (1) 受信準備ができたら、合図として定期的にNAKを送信する
   while (!serial_is_recv_enable(SERIAL_DEFAULT_DEVICE)) {
-    // 受信準備できていない場合
     if (++cnt >= 2000000) {
       cnt = 0;
-      // TODO なぜcntがこの回数に逹っしたら準備できたことになる？
       // 準備ができたらNAKを送る
       serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_NAK);
     }

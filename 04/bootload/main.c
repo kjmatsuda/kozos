@@ -46,7 +46,6 @@ static int dump(char *buf, long size)
 
 static void wait()
 {
-  // TODO 30万回ループするだけ。これで本当に「転送アプリが終了し端末アプリに制御が戻るまで待ち合わせる」になる？
   volatile long i;
   for (i = 0; i < 300000; i++)
     ;

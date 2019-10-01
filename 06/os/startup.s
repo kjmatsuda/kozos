@@ -7,4 +7,4 @@ _start:
 	jsr	@_main
 
 1:
-	bra	1b
+	bra	1b // TODO これは何？

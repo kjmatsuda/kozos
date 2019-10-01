@@ -12,6 +12,8 @@ static int init(void)
    * グローバル変数が初期化されていないので注意．
    */
   memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
+  // TODO ビルドプロセスで0設定されないの？アプリが意識しないといけない？
+  // TODO GITCでどうなっているか見てみるのもよい
   memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
 
   /* シリアルの初期化 */
