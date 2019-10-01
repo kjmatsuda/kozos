@@ -7,3 +7,6 @@ kzload.mot
 kozos
 kozos.elf
 *.o
+.cproject
+.project
+.settings
