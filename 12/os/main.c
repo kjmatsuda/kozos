@@ -22,7 +22,7 @@ int main(void)
 {
   INTR_DISABLE; /* 割込み無効にする */
 
-  puts("kozos boot succeed!\n");
+  puts("kozos boot succeed! test\n");
 
   /* OSの動作開始 */
   kz_start(start_threads, "idle", 0, 0x100, 0, NULL);

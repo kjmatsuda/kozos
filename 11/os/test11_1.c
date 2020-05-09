@@ -20,6 +20,7 @@ int test11_1_main(int argc, char *argv[])
   kz_recv(MSGBOX_ID_MSGBOX1, &size, &p); /* 受信 */
   puts("test11_1 recv out.\n");
   puts(p);
+  // TODO メモリ開放ってカーネルでやってなかったっけ？
   kz_kmfree(p); /* メモリ解放 */
 
   /* 静的領域をメッセージで送信 */

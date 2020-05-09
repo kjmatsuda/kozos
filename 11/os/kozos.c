@@ -287,7 +287,7 @@ static void sendmsg(kz_msgbox *mboxp, kz_thread *thp, int size, char *p)
   if (mp == NULL)
     kz_sysdown();
   mp->next       = NULL;
-  mp->sender     = thp;
+  mp->sender     = thp;	// カレントスレッドを送信元に設定
   mp->param.size = size;
   mp->param.p    = p;
 
@@ -333,6 +333,7 @@ static int thread_send(kz_msgbox_id_t id, int size, char *p)
 {
   kz_msgbox *mboxp = &msgboxes[id];
 
+  // TODO ここでputcurrentする意味は？
   putcurrent();
   sendmsg(mboxp, current, size, p); /* メッセージの送信処理 */
 
