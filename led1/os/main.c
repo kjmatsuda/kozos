@@ -23,14 +23,7 @@ int main(void)
 {
   INTR_DISABLE; /* 割込み無効にする */
 
-  // TODO IOポート初期化は別の場所で実行した方がよい
-  // IOポートを初期化
-  ioport_init();
-  ioport_set_data_direction(1, 0xff);
-  ioport_set_data_direction(2, 0xff);
-  ioport_set_data_direction(3, 0xff);
-
-  puts("kozos boot succeed! test\n");
+  puts("kozos boot succeed!\n");
 
   /* OSの動作開始 */
   kz_start(start_threads, "idle", 0, 0x100, 0, NULL);

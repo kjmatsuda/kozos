@@ -34,6 +34,12 @@ int command_main(int argc, char *argv[])
   int size;
 
   send_use(SERIAL_DEFAULT_DEVICE);
+  // TODO IOポート初期化は別の場所で実行した方がよい
+  // IOポートを初期化
+//  ioport_init();
+    ioport_set_data_direction(1, 0xff);
+//  ioport_set_data_direction(2, 0xff);
+//  ioport_set_data_direction(3, 0xff);
 
   while (1) {
     send_write("command> "); /* プロンプト表示 */
@@ -46,14 +52,14 @@ int command_main(int argc, char *argv[])
       send_write(p + 4); /* echoに続く文字列を出力する */
       send_write("\n");
     }
-    else if (!strncmp(p, "ledon", 5)) { /* ledonコマンド */
+    else if (!strncmp(p, "ledhi", 5)) { /* ledhiコマンド */
       ioport_set_data(1, 0xff);
-      send_write("ledon\n");
+      send_write("ledhi\n");
       send_write("\n");
     }
-    else if (!strncmp(p, "ledoff", 6)) { /* ledoffコマンド */
+    else if (!strncmp(p, "ledlo", 6)) { /* ledloコマンド */
       ioport_set_data(1, 0);
-      send_write("ledoff\n");
+      send_write("ledlo\n");
       send_write("\n");
     }
     else {
