@@ -7,7 +7,7 @@
 
 /* システム・コール */
 kz_thread_id_t kz_run(kz_func_t func, char *name, int priority, int stacksize,
-		      int argc, char *argv[]);
+					int argc, char *argv[]);
 void kz_exit(void);
 int kz_wait(void);
 int kz_sleep(void);
@@ -28,7 +28,7 @@ int kx_send(kz_msgbox_id_t id, int size, char *p);
 
 /* ライブラリ関数 */
 void kz_start(kz_func_t func, char *name, int priority, int stacksize,
-	      int argc, char *argv[]);
+				int argc, char *argv[]);
 void kz_sysdown(void);
 void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param);
 void kz_srvcall(kz_syscall_type_t type, kz_syscall_param_t *param);

@@ -34,6 +34,10 @@
 /* デバイス初期化 */
 int ioport_init()
 {
+	// TODO ソフトウェアスタンバイ出力ポートイネーブルの操作を別の場所に移動する
+	// ソフトウェアスタンバイ出力ポートイネーブルをONにする(IOポートのアドレスバス出力を有効にするフラグがこれなんじゃないか？)
+	//SYSCR |= 1 << 1;
+
 	int port_no = 1;
 
 	for (port_no = 1; port_no <= IOPORT_NUM; port_no++)
@@ -43,6 +47,7 @@ int ioport_init()
 		// データ初期化
 		ioport_set_data(port_no, 0);
 	}
+
 	return 0;
 }
 
@@ -84,5 +89,6 @@ int ioport_set_data(int port_no, uint8 data)
 	IOPORTA_DATA_REG_ADDR = data;
 	IOPORTB_DATA_REG_ADDR = data;
 
-	return 0;
+	// TODO あとで直す
+	return IOPORT1_DATA_REG_ADDR;
 }

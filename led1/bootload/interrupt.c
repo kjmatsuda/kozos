@@ -5,17 +5,17 @@
 /* ソフトウエア・割込みベクタの初期化 */
 int softvec_init(void)
 {
-  int type;
-  for (type = 0; type < SOFTVEC_TYPE_NUM; type++)
-    softvec_setintr(type, NULL);
-  return 0;
+	int type;
+	for (type = 0; type < SOFTVEC_TYPE_NUM; type++)
+		softvec_setintr(type, NULL);
+	return 0;
 }
 
 /* ソフトウエア・割込みベクタの設定 */
 int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
 {
-  SOFTVECS[type] = handler;
-  return 0;
+	SOFTVECS[type] = handler;
+	return 0;
 }
 
 /*
@@ -24,7 +24,7 @@ int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
  */
 void interrupt(softvec_type_t type, unsigned long sp)
 {
-  softvec_handler_t handler = SOFTVECS[type];
-  if (handler)
-    handler(type, sp);
+	softvec_handler_t handler = SOFTVECS[type];
+	if (handler)
+		handler(type, sp);
 }
