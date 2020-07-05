@@ -11,3 +11,4 @@ kozos.elf
 .project
 .settings
 .autotools
+objs
