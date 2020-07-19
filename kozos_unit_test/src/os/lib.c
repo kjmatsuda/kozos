@@ -2,7 +2,7 @@
 #include "serial.h"
 #include "lib.h"
 
-void *memset(void *b, int c, long len)
+void *k_memset(void *b, int c, long len)
 {
 	char *p;
 	for (p = b; len > 0; len--)
@@ -10,7 +10,7 @@ void *memset(void *b, int c, long len)
 	return b;
 }
 
-void *memcpy(void *dst, const void *src, long len)
+void *k_memcpy(void *dst, const void *src, long len)
 {
 	char *d = dst;
 	const char *s = src;
@@ -19,7 +19,7 @@ void *memcpy(void *dst, const void *src, long len)
 	return dst;
 }
 
-int memcmp(const void *b1, const void *b2, long len)
+int k_memcmp(const void *b1, const void *b2, long len)
 {
 	const char *p1 = b1, *p2 = b2;
 	for (; len > 0; len--) {
@@ -31,7 +31,7 @@ int memcmp(const void *b1, const void *b2, long len)
 	return 0;
 }
 
-int strlen(const char *s)
+int k_strlen(const char *s)
 {
 	int len;
 	for (len = 0; *s; s++, len++)
@@ -39,7 +39,7 @@ int strlen(const char *s)
 	return len;
 }
 
-char *strcpy(char *dst, const char *src)
+char *k_strcpy(char *dst, const char *src)
 {
 	char *d = dst;
 	for (;; dst++, src++) {
@@ -49,7 +49,7 @@ char *strcpy(char *dst, const char *src)
 	return d;
 }
 
-int strcmp(const char *s1, const char *s2)
+int k_strcmp(const char *s1, const char *s2)
 {
 	while (*s1 || *s2) {
 		if (*s1 != *s2)
@@ -60,7 +60,7 @@ int strcmp(const char *s1, const char *s2)
 	return 0;
 }
 
-int strncmp(const char *s1, const char *s2, int len)
+int k_strncmp(const char *s1, const char *s2, int len)
 {
 	while ((*s1 || *s2) && (len > 0)) {
 		if (*s1 != *s2)
@@ -73,7 +73,7 @@ int strncmp(const char *s1, const char *s2, int len)
 }
 
 /* １文字送信 */
-int putc(unsigned char c)
+int k_putc(unsigned char c)
 {
 	if (c == '\n')
 		serial_send_byte(SERIAL_DEFAULT_DEVICE, '\r');
@@ -81,29 +81,29 @@ int putc(unsigned char c)
 }
 
 /* １文字受信 */
-unsigned char getc(void)
+unsigned char k_getc(void)
 {
 	unsigned char c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
 	c = (c == '\r') ? '\n' : c;
-	putc(c); /* エコー・バック */
+	k_putc(c); /* エコー・バック */
 	return c;
 }
 
 /* 文字列送信 */
-int puts(unsigned char *str)
+int k_puts(unsigned char *str)
 {
 	while (*str)
-		putc(*(str++));
+		k_putc(*(str++));
 	return 0;
 }
 
 /* 文字列受信 */
-int gets(unsigned char *buf)
+int k_gets(unsigned char *buf)
 {
 	int i = 0;
 	unsigned char c;
 	do {
-		c = getc();
+		c = k_getc();
 		if (c == '\n')
 			c = '\0';
 		buf[i++] = c;
@@ -112,7 +112,7 @@ int gets(unsigned char *buf)
 }
 
 /* 数値の16進表示 */
-int putxval(unsigned long value, int column)
+int k_putxval(unsigned long value, int column)
 {
 	char buf[9];
 	char *p;
@@ -129,7 +129,7 @@ int putxval(unsigned long value, int column)
 		if (column) column--;
 	}
 
-	puts(p + 1);
+	k_puts(p + 1);
 
 	return 0;
 }

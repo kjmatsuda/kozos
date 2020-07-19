@@ -6,17 +6,18 @@ extern "C"
 
 TEST_GROUP(lib)
 {
-  void setup()
-  {
-  }
-  void teardown()
-  {
-  }
+	void setup()
+	{
+	}
+	void teardown()
+	{
+	}
 };
 
-TEST(lib, strlen)
-{ 
-  char str[5];
-  LONGS_EQUAL(5, strlen(str));
+TEST(lib, k_strlen)
+{
+	char str[] = "Hello";
+
+	LONGS_EQUAL(5, k_strlen(str));
 }
 
