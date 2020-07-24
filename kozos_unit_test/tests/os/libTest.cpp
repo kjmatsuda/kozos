@@ -1,8 +1,9 @@
+#include "CppUTest/TestHarness.h"
+
 extern "C"
 {
-#include "lib.h"  
+#include "lib.h"
 }
-#include "CppUTest/TestHarness.h"
 
 TEST_GROUP(lib)
 {
@@ -20,4 +21,3 @@ TEST(lib, k_strlen)
 
 	LONGS_EQUAL(5, k_strlen(str));
 }
-
