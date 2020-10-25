@@ -40,7 +40,6 @@ static struct {
 static struct timer_common *l_timer_common_reg = TIMER_COMMON;
 
 // TODO [タイマー]16TCNT と GRA が一致したら IMFAフラグが1にセットされるらしいが、クリアしなくていいのか？
-// TODO [タイマー]タイマー割込みハンドラの実装
 void timer_init(int index)
 {
 	// 割込み周期を10msecにしたい。システムクロックφは25MHz

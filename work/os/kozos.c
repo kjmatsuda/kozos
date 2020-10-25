@@ -4,6 +4,7 @@
 #include "interrupt.h"
 #include "syscall.h"
 #include "memory.h"
+#include "timer.h"
 #include "lib.h"
 
 #define THREAD_NUM 6
@@ -75,6 +76,8 @@ static kz_thread *current; /* カレント・スレッド */
 static kz_thread threads[THREAD_NUM]; /* タスク・コントロール・ブロック */
 static kz_handler_t handlers[SOFTVEC_TYPE_NUM]; /* 割込みハンドラ */
 static kz_msgbox msgboxes[MSGBOX_ID_NUM]; /* メッセージ・ボックス */
+
+static int timer_count = 0;
 
 void dispatch(kz_context *context);
 
@@ -499,6 +502,17 @@ static void softerr_intr(void)
 	thread_exit(); /* スレッド終了する */
 }
 
+static void timer_intr(void)
+{
+	timer_count++;
+	if (timer_count == 100)
+	{
+		// 10msecで timer_intr が呼ばれるので、1秒周期で以下のメッセージが表示される想定
+		puts("HELLO TIMER.\n");
+		timer_count = 0;
+	}
+}
+
 /* 割込み処理の入口関数 */
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
@@ -545,6 +559,12 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize,
 	/* 割込みハンドラの登録 */
 	thread_setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* システム・コール */
 	thread_setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); /* ダウン要因発生 */
+	thread_setintr(SOFTVEC_TYPE_TIMER, timer_intr);		/* タイマー割込み発生 */
+
+	// タイマー初期化
+	timer_init(0);
+	timer_start(0);
+	puts("timer_init done.\n");
 
 	/* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */
 	current = (kz_thread *)thread_run(func, name, priority, stacksize,
