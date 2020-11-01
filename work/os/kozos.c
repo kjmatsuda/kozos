@@ -504,6 +504,9 @@ static void softerr_intr(void)
 
 static void timer_intr(void)
 {
+	// 割込み発生フラグクリア
+	timer_interrupt_flg_clear(0);
+
 	timer_count++;
 	if (timer_count == 100)
 	{

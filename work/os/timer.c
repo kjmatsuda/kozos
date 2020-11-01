@@ -8,6 +8,8 @@
 #define TIMER1 ((volatile struct timer *)0xffff70)
 #define TIMER2 ((volatile struct timer *)0xffff78)
 
+#define TIMER_INTERRUPT_ENABLE_BIT	 (4)
+
 struct timer_common {
 	volatile uint8 tstr;		// タイマスタートレジスタ
 	volatile uint8 tsnc;		// タイマシンクロレジスタ
@@ -39,7 +41,6 @@ static struct {
 
 static struct timer_common *l_timer_common_reg = TIMER_COMMON;
 
-// TODO [タイマー]16TCNT と GRA が一致したら IMFAフラグが1にセットされるらしいが、クリアしなくていいのか？
 void timer_init(int index)
 {
 	// 割込み周期を10msecにしたい。システムクロックφは25MHz
@@ -57,14 +58,32 @@ void timer_init(int index)
 	// 62500 (0xF424)
 	p_timer->gra_high = 0xF4;
 	p_timer->gra_low = 0x24;
+
+	// コンペアマッチインタラプトイネーブルを許可にする
+	timer_interrupt_enable(index);
 }
 
 void timer_start(int index)
 {
-	l_timer_common_reg->tstr |= index;
+	l_timer_common_reg->tstr |= (1 << index);
 }
 
 void timer_stop(int index)
 {
-	l_timer_common_reg->tstr &= ~index;
+	l_timer_common_reg->tstr &= ~(1 << index);
+}
+
+void timer_interrupt_enable(int index)
+{
+	l_timer_common_reg->tisra |= (1 << (index + TIMER_INTERRUPT_ENABLE_BIT));
+}
+
+void timer_interrupt_disable(int index)
+{
+	l_timer_common_reg->tisra &= ~(1 << (index + TIMER_INTERRUPT_ENABLE_BIT));
+}
+
+void timer_interrupt_flg_clear(int index)
+{
+	l_timer_common_reg->tisra &= ~(1 << index);
 }
