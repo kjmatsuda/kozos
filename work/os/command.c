@@ -34,11 +34,6 @@ int command_main(int argc, char *argv[])
 	int size;
 
 	send_use(SERIAL_DEFAULT_DEVICE);
-	// TODO IOポート初期化は別の場所で実行した方がよい
-	// IOポートを初期化
-	ioport_init();
-	ioport_set_data_direction(1, 0x81);
-	ioport_set_data_direction(2, 0x81);
 
 	while (1) {
 		send_write("command> "); /* プロンプト表示 */

@@ -5,6 +5,7 @@
 #include "syscall.h"
 #include "memory.h"
 #include "timer.h"
+#include "ioport.h"
 #include "lib.h"
 
 #define THREAD_NUM 6
@@ -78,6 +79,7 @@ static kz_handler_t handlers[SOFTVEC_TYPE_NUM]; /* 割込みハンドラ */
 static kz_msgbox msgboxes[MSGBOX_ID_NUM]; /* メッセージ・ボックス */
 
 static int timer_count = 0;
+static int led_sts = 1;
 
 void dispatch(kz_context *context);
 
@@ -508,11 +510,29 @@ static void timer_intr(void)
 	timer_interrupt_flg_clear(0);
 
 	timer_count++;
-	if (timer_count == 100)
+
+//	// 1秒周期で「HELLO TIMER.」を表示
+//	if (timer_count == 100)
+//	{
+//		// 10msecで timer_intr が呼ばれるので、1秒周期で以下のメッセージが表示される想定
+//		puts("HELLO TIMER.\n");
+//		timer_count = 0;
+//	}
+
+	// 0.5秒周期でLEDをON/OFF
+	if (50 == timer_count)
 	{
-		// 10msecで timer_intr が呼ばれるので、1秒周期で以下のメッセージが表示される想定
-		puts("HELLO TIMER.\n");
 		timer_count = 0;
+		if (0 == led_sts)
+		{
+			ioport_set_data(1, 0x01);
+			led_sts = 1;
+		}
+		else
+		{
+			ioport_set_data(1, 0);
+			led_sts = 0;
+		}
 	}
 }
 
@@ -568,6 +588,11 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize,
 	timer_init(0);
 	timer_start(0);
 	puts("timer_init done.\n");
+
+	// IOポートを初期化
+	ioport_init();
+	ioport_set_data_direction(1, 0x81);
+	ioport_set_data_direction(2, 0x81);
 
 	/* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */
 	current = (kz_thread *)thread_run(func, name, priority, stacksize,
