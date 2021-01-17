@@ -5,13 +5,14 @@
 
 /* システム・コール */
 
-kz_thread_id_t kz_run(kz_func_t func, char *name, int priority, int stacksize,
+kz_thread_id_t kz_run(kz_func_t func, char *name, int priority, int interval_time_msec, int stacksize,
 					int argc, char *argv[])
 {
 	kz_syscall_param_t param;
 	param.un.run.func = func;
 	param.un.run.name = name;
 	param.un.run.priority = priority;
+	param.un.run.interval_time_msec = interval_time_msec;
 	param.un.run.stacksize = stacksize;
 	param.un.run.argc = argc;
 	param.un.run.argv = argv;
@@ -140,4 +141,12 @@ int kx_send(kz_msgbox_id_t id, int size, char *p)
 	param.un.send.p = p;
 	kz_srvcall(KZ_SYSCALL_TYPE_SEND, &param);
 	return param.un.send.ret;
+}
+
+int kx_dec_wait_time(int msec)
+{
+	kz_syscall_param_t param;
+	param.un.decwaittime.msec = msec;
+	kz_srvcall(KZ_SYSCALL_TYPE_DEC_WAIT_TIME, &param);
+	return param.un.decwaittime.ret;
 }

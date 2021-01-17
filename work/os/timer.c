@@ -10,6 +10,8 @@
 
 #define TIMER_INTERRUPT_ENABLE_BIT	 (4)
 
+#define TIMER_INTERRUPT_INTERVAL_MSEC	 (10)
+
 struct timer_common {
 	volatile uint8 tstr;		// タイマスタートレジスタ
 	volatile uint8 tsnc;		// タイマシンクロレジスタ
@@ -92,4 +94,9 @@ void timer_interrupt_disable(int index)
 void timer_interrupt_flg_clear(int index)
 {
 	l_timer_common_reg->tisra &= ~(1 << index);
+}
+
+int get_timer_interrupt_interval_msec()
+{
+	return TIMER_INTERRUPT_INTERVAL_MSEC;
 }

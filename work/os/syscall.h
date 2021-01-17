@@ -18,6 +18,7 @@ typedef enum {
 	KZ_SYSCALL_TYPE_SEND,
 	KZ_SYSCALL_TYPE_RECV,
 	KZ_SYSCALL_TYPE_SETINTR,
+	KZ_SYSCALL_TYPE_DEC_WAIT_TIME,
 } kz_syscall_type_t;
 
 /* システム・コール呼び出し時のパラメータ格納域の定義 */
@@ -27,6 +28,7 @@ typedef struct {
 			kz_func_t func;
 			char *name;
 			int priority;
+			int interval_time_msec;
 			int stacksize;
 			int argc;
 			char **argv;
@@ -77,6 +79,10 @@ typedef struct {
 			kz_handler_t handler;
 			int ret;
 		} setintr;
+		struct {
+			int msec;
+			int ret;
+		} decwaittime;
 	} un;
 } kz_syscall_param_t;
 

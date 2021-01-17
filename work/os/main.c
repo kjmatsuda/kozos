@@ -7,8 +7,10 @@
 /* システム・タスクとユーザ・タスクの起動 */
 static int start_threads(int argc, char *argv[])
 {
-	kz_run(consdrv_main, "consdrv",	1, 0x200, 0, NULL);
-	kz_run(command_main, "command",	8, 0x200, 0, NULL);
+	kz_run(consdrv_main, "consdrv",	1, 0, 0x200, 0, NULL);
+	kz_run(command_main, "command",	8, 0, 0x200, 0, NULL);
+	kz_run(timer_master_main, "timer_master",	2, 0, 0x200, 0, NULL);
+	kz_run(timer_task_main, "timer_task",	3, 500, 0x200, 0, NULL);
 
 	kz_chpri(15); /* 優先順位を下げて，アイドルスレッドに移行する */
 	INTR_ENABLE; /* 割込み有効にする */
@@ -26,7 +28,7 @@ int main(void)
 	puts("kozos boot succeed!\n");
 
 	/* OSの動作開始 */
-	kz_start(start_threads, "idle", 0, 0x100, 0, NULL);
+	kz_start(start_threads, "idle", 0, 0, 0x100, 0, NULL);
 	/* ここには戻ってこない */
 
 	return 0;

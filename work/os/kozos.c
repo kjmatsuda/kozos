@@ -4,7 +4,6 @@
 #include "interrupt.h"
 #include "syscall.h"
 #include "memory.h"
-#include "timer.h"
 #include "ioport.h"
 #include "lib.h"
 
@@ -22,9 +21,12 @@ typedef struct _kz_thread {
 	struct _kz_thread *next;
 	char name[THREAD_NAME_SIZE + 1]; /* スレッド名 */
 	int priority;	 /* 優先度 */
+	int interval_time_msec;		// 周期時間
+	int remaining_wait_time_msec;	// 残り待ち時間
 	char *stack;		/* スタック */
 	uint32 flags;	 /* 各種フラグ */
 #define KZ_THREAD_FLAG_READY (1 << 0)
+#define KZ_THREAD_FLAG_INTERVAL_TASK (1 << 0)
 
 	struct { /* スレッドのスタート・アップ(thread_init())に渡すパラメータ */
 		kz_func_t func; /* スレッドのメイン関数 */
@@ -78,9 +80,6 @@ static kz_thread threads[THREAD_NUM]; /* タスク・コントロール・ブロ
 static kz_handler_t handlers[SOFTVEC_TYPE_NUM]; /* 割込みハンドラ */
 static kz_msgbox msgboxes[MSGBOX_ID_NUM]; /* メッセージ・ボックス */
 
-static int timer_count = 0;
-static int led_sts = 1;
-
 void dispatch(kz_context *context);
 
 /* カレント・スレッドをレディー・キューから抜き出す */
@@ -125,6 +124,11 @@ static int putcurrent(void)
 	readyque[current->priority].tail = current;
 	current->flags |= KZ_THREAD_FLAG_READY;
 
+	if (current->flags & KZ_THREAD_FLAG_INTERVAL_TASK) {
+		// 周期タスクである場合は残り待ち時間を設定
+		current->remaining_wait_time_msec = current->interval_time_msec;
+	}
+
 	return 0;
 }
 
@@ -142,7 +146,7 @@ static void thread_init(kz_thread *thp)
 }
 
 /* システム・コールの処理(kz_run():スレッドの起動) */
-static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority,
+static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority, int interval_time_msec,
 				 int stacksize, int argc, char *argv[])
 {
 	int i;
@@ -166,7 +170,13 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority,
 	strcpy(thp->name, name);
 	thp->next		 = NULL;
 	thp->priority = priority;
+	thp->interval_time_msec = interval_time_msec;
+	thp->remaining_wait_time_msec = 0;
 	thp->flags		= 0;
+	if (interval_time_msec > 0)
+	{
+		thp->flags |= KZ_THREAD_FLAG_INTERVAL_TASK;
+	}
 
 	thp->init.func = func;
 	thp->init.argc = argc;
@@ -392,13 +402,33 @@ static int thread_setintr(softvec_type_t type, kz_handler_t handler)
 	return 0;
 }
 
+static int thread_dec_wait_time(int msec)
+{
+	int ii;
+	kz_thread *thread;
+
+	for (ii = 0; ii < PRIORITY_NUM; ii++) {
+		thread = readyque[ii].head;
+		while(thread != NULL)
+		{
+			if ((thread->flags & KZ_THREAD_FLAG_INTERVAL_TASK) && thread->remaining_wait_time_msec > 0) {
+				// 周期タスクかつ残り待ち時間が0より大きい場合
+				thread->remaining_wait_time_msec -= msec;
+			}
+			thread = thread->next;
+		}
+	}
+
+	return 0;
+}
+
 static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
 {
 	/* システム・コールの実行中にcurrentが書き換わるので注意 */
 	switch (type) {
 	case KZ_SYSCALL_TYPE_RUN: /* kz_run() */
 		p->un.run.ret = thread_run(p->un.run.func, p->un.run.name,
-						 p->un.run.priority, p->un.run.stacksize,
+						 p->un.run.priority, p->un.run.interval_time_msec, p->un.run.stacksize,
 						 p->un.run.argc, p->un.run.argv);
 		break;
 	case KZ_SYSCALL_TYPE_EXIT: /* kz_exit() */
@@ -437,6 +467,9 @@ static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
 	case KZ_SYSCALL_TYPE_SETINTR: /* kz_setintr() */
 		p->un.setintr.ret = thread_setintr(p->un.setintr.type,
 							 p->un.setintr.handler);
+		break;
+	case KZ_SYSCALL_TYPE_DEC_WAIT_TIME: /* kz_dec_wait_time() */
+		p->un.decwaittime.ret = thread_dec_wait_time(p->un.decwaittime.msec);
 		break;
 	default:
 		break;
@@ -482,8 +515,16 @@ static void schedule(void)
 	 * 動作可能なスレッドを検索する．
 	 */
 	for (i = 0; i < PRIORITY_NUM; i++) {
-		if (readyque[i].head) /* 見つかった */
-			break;
+		if (readyque[i].head) {
+			if ((readyque[i].head->flags & KZ_THREAD_FLAG_INTERVAL_TASK) && readyque[i].head->remaining_wait_time_msec > 0) {
+				// 周期タスクかつ残り待ち時間が0より大きい場合はスキップ
+			}
+			else
+			{
+				// スケジューリング対象のタスクが見つかった
+				break;
+			}
+		}
 	}
 	if (i == PRIORITY_NUM) /* 見つからなかった */
 		kz_sysdown();
@@ -502,38 +543,6 @@ static void softerr_intr(void)
 	puts(" DOWN.\n");
 	getcurrent(); /* レディーキューから外す */
 	thread_exit(); /* スレッド終了する */
-}
-
-static void timer_intr(void)
-{
-	// 割込み発生フラグクリア
-	timer_interrupt_flg_clear(0);
-
-	timer_count++;
-
-//	// 1秒周期で「HELLO TIMER.」を表示
-//	if (timer_count == 100)
-//	{
-//		// 10msecで timer_intr が呼ばれるので、1秒周期で以下のメッセージが表示される想定
-//		puts("HELLO TIMER.\n");
-//		timer_count = 0;
-//	}
-
-	// 0.5秒周期でLEDをON/OFF
-	if (50 == timer_count)
-	{
-		timer_count = 0;
-		if (0 == led_sts)
-		{
-			ioport_set_data(1, 0x01);
-			led_sts = 1;
-		}
-		else
-		{
-			ioport_set_data(1, 0);
-			led_sts = 0;
-		}
-	}
 }
 
 /* 割込み処理の入口関数 */
@@ -563,7 +572,7 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
 	/* ここには返ってこない */
 }
 
-void kz_start(kz_func_t func, char *name, int priority, int stacksize,
+void kz_start(kz_func_t func, char *name, int priority, int interval_time_msec, int stacksize,
 				int argc, char *argv[])
 {
 	kzmem_init(); /* 動的メモリの初期化 */
@@ -582,12 +591,6 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize,
 	/* 割込みハンドラの登録 */
 	thread_setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* システム・コール */
 	thread_setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); /* ダウン要因発生 */
-	thread_setintr(SOFTVEC_TYPE_TIMER, timer_intr);		/* タイマー割込み発生 */
-
-	// タイマー初期化
-	timer_init(0);
-	timer_start(0);
-	puts("timer_init done.\n");
 
 	// IOポートを初期化
 	ioport_init();
@@ -595,7 +598,7 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize,
 	ioport_set_data_direction(2, 0x81);
 
 	/* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */
-	current = (kz_thread *)thread_run(func, name, priority, stacksize,
+	current = (kz_thread *)thread_run(func, name, priority, interval_time_msec, stacksize,
 						argc, argv);
 
 	/* 最初のスレッドを起動 */
