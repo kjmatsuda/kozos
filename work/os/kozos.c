@@ -26,7 +26,7 @@ typedef struct _kz_thread {
 	char *stack;		/* スタック */
 	uint32 flags;	 /* 各種フラグ */
 #define KZ_THREAD_FLAG_READY (1 << 0)
-#define KZ_THREAD_FLAG_INTERVAL_TASK (1 << 0)
+#define KZ_THREAD_FLAG_INTERVAL_TASK (1 << 1)
 
 	struct { /* スレッドのスタート・アップ(thread_init())に渡すパラメータ */
 		kz_func_t func; /* スレッドのメイン関数 */
