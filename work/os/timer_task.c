@@ -1,4 +1,5 @@
 #include "defines.h"
+#include "kozos.h"
 #include "syscall.h"
 #include "ioport.h"
 
