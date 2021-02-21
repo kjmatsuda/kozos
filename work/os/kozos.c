@@ -594,7 +594,9 @@ void kz_start(kz_func_t func, char *name, int priority, int interval_time_msec, 
 
 	// IOポートを初期化
 	ioport_init();
+	// P1_0、P1_7のビットに１を立てて出力ポートにする
 	ioport_set_data_direction(1, 0x81);
+	// P2_0、P1_7のビットに１を立てて出力ポートにする
 	ioport_set_data_direction(2, 0x81);
 
 	/* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */

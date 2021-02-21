@@ -54,3 +54,21 @@ int ioport_set_data(int port_no, uint8 data)
 
 	return 0;
 }
+
+/* データ取得 */
+int ioport_get_data(int port_no, uint8 *p_data)
+{
+	int port_idx = port_no - 1;
+	*p_data = l_dr->regs[port_idx];
+
+	return 0;
+}
+
+/* データビットON判定取得 */
+int ioport_data_bit_is_on(int port_no, int bit)
+{
+	int port_idx = port_no - 1;
+	l_dr->regs[port_idx];
+
+	return (l_dr->regs[port_idx] & (1 << bit)) ? 1 : 0;
+}

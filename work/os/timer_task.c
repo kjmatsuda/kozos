@@ -3,21 +3,18 @@
 #include "syscall.h"
 #include "ioport.h"
 
-static int led_sts = 1;
-
 int timer_task_main(int argc, char *argv[])
 {
 	while (1) {
-		if (0 == led_sts)
+		if (ioport_data_bit_is_on(1, 1))
 		{
-			ioport_set_data(1, 0x01);
-			led_sts = 1;
+			ioport_set_data(1, 0);
 		}
 		else
 		{
-			ioport_set_data(1, 0);
-			led_sts = 0;
+			ioport_set_data(1, 0x01);
 		}
+
 		kz_wait();
 	}
 
