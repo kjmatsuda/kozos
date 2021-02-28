@@ -164,10 +164,10 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority, int i
 	if (i == THREAD_NUM) /* 見つからなかった */
 		return -1;
 
-	memset(thp, 0, sizeof(*thp));
+	kz_memset(thp, 0, sizeof(*thp));
 
 	/* タスク・コントロール・ブロック(TCB)の設定 */
-	strcpy(thp->name, name);
+	kz_strcpy(thp->name, name);
 	thp->next		 = NULL;
 	thp->priority = priority;
 	thp->interval_time_msec = interval_time_msec;
@@ -183,7 +183,7 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority, int i
 	thp->init.argv = argv;
 
 	/* スタック領域を獲得 */
-	memset(thread_stack, 0, stacksize);
+	kz_memset(thread_stack, 0, stacksize);
 	thread_stack += stacksize;
 
 	thp->stack = thread_stack; /* スタックを設定 */
@@ -228,9 +228,9 @@ static int thread_exit(void)
 	 * 本来ならスタックも解放して再利用できるようにすべきだが省略．
 	 * このため，スレッドを頻繁に生成・消去するようなことは現状でできない．
 	 */
-	puts(current->name);
-	puts(" EXIT.\n");
-	memset(current, 0, sizeof(*current));
+	kz_puts(current->name);
+	kz_puts(" EXIT.\n");
+	kz_memset(current, 0, sizeof(*current));
 	return 0;
 }
 
@@ -385,11 +385,11 @@ static kz_thread_id_t thread_recv(kz_msgbox_id_t id, int *sizep, char **pp)
 	return current->syscall.param->un.recv.ret;
 }
 
+static void thread_intr(softvec_type_t type, unsigned long sp);
+
 /* システム・コールの処理(kz_setintr():割込みハンドラ登録) */
 static int thread_setintr(softvec_type_t type, kz_handler_t handler)
 {
-	static void thread_intr(softvec_type_t type, unsigned long sp);
-
 	/*
 	 * 割込みを受け付けるために，ソフトウエア・割込みベクタに
 	 * OSの割込み処理の入口となる関数を登録する．
@@ -539,8 +539,8 @@ static void syscall_intr(void)
 
 static void softerr_intr(void)
 {
-	puts(current->name);
-	puts(" DOWN.\n");
+	kz_puts(current->name);
+	kz_puts(" DOWN.\n");
 	getcurrent(); /* レディーキューから外す */
 	thread_exit(); /* スレッド終了する */
 }
@@ -583,10 +583,10 @@ void kz_start(kz_func_t func, char *name, int priority, int interval_time_msec, 
 	 */
 	current = NULL;
 
-	memset(readyque, 0, sizeof(readyque));
-	memset(threads,	0, sizeof(threads));
-	memset(handlers, 0, sizeof(handlers));
-	memset(msgboxes, 0, sizeof(msgboxes));
+	kz_memset(readyque, 0, sizeof(readyque));
+	kz_memset(threads,	0, sizeof(threads));
+	kz_memset(handlers, 0, sizeof(handlers));
+	kz_memset(msgboxes, 0, sizeof(msgboxes));
 
 	/* 割込みハンドラの登録 */
 	thread_setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* システム・コール */
@@ -611,7 +611,7 @@ void kz_start(kz_func_t func, char *name, int priority, int interval_time_msec, 
 
 void kz_sysdown(void)
 {
-	puts("system error!\n");
+	kz_puts("system error!\n");
 	while (1)
 		;
 }
@@ -621,7 +621,9 @@ void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
 {
 	current->syscall.type	= type;
 	current->syscall.param = param;
+#ifndef CPPUTEST
 	asm volatile ("trapa #0"); /* トラップ割込み発行 */
+#endif
 }
 
 /* サービス・コール呼び出し用ライブラリ関数 */

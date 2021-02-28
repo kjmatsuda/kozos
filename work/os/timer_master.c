@@ -21,7 +21,7 @@ int timer_master_main(int argc, char *argv[])
 	// タイマー初期化
 	timer_init(0);
 	timer_start(0);
-	puts("timer_init done.\n");
+	kz_puts("timer_init done.\n");
 
 	return 0;
 }

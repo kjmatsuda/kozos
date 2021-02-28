@@ -41,7 +41,7 @@ struct elf_program_header {
 /* ELFヘッダのチェック */
 static int elf_check(struct elf_header *header)
 {
-	if (memcmp(header->id.magic, "\x7f" "ELF", 4))
+	if (kz_memcmp(header->id.magic, "\x7f" "ELF", 4))
 		return -1;
 
 	if (header->id.class	 != 1) return -1; /* ELF32 */
@@ -71,9 +71,9 @@ static int elf_load_program(struct elf_header *header)
 		if (phdr->type != 1) /* ロード可能なセグメントか？ */
 			continue;
 
-		memcpy((char *)phdr->physical_addr, (char *)header + phdr->offset,
+		kz_memcpy((char *)phdr->physical_addr, (char *)header + phdr->offset,
 		 phdr->file_size);
-		memset((char *)phdr->physical_addr + phdr->file_size, 0,
+		kz_memset((char *)phdr->physical_addr + phdr->file_size, 0,
 		 phdr->memory_size - phdr->file_size);
 	}
 

@@ -91,7 +91,7 @@ static int consdrv_intrproc(struct consreg *cons)
 	 * (割込みハンドラなので，サービス・コールを利用する)
 	 */
 	p = kx_kmalloc(CONS_BUFFER_SIZE);
-	memcpy(p, cons->recv_buf, cons->recv_len);
+	kz_memcpy(p, cons->recv_buf, cons->recv_len);
 	kx_send(MSGBOX_ID_CONSINPUT, cons->recv_len, p);
 	cons->recv_len = 0;
 			}
@@ -130,7 +130,7 @@ static void consdrv_intr(void)
 
 static int consdrv_init(void)
 {
-	memset(consreg, 0, sizeof(consreg));
+	kz_memset(consreg, 0, sizeof(consreg));
 	return 0;
 }
 
@@ -155,9 +155,13 @@ static int consdrv_command(struct consreg *cons, kz_thread_id_t id,
 		 * send_string()では送信バッファを操作しており再入不可なので，
 		 * 排他のために割込み禁止にして呼び出す．
 		 */
+#ifndef CPPUTEST
 		INTR_DISABLE;
+#endif
 		send_string(cons, command + 1, size - 1); /* 文字列の送信 */
+#ifndef CPPUTEST
 		INTR_ENABLE;
+#endif
 		break;
 
 	default:

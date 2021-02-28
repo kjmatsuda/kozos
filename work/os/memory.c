@@ -41,7 +41,7 @@ static int kzmem_init_pool(kzmem_pool *p)
 	mpp = &p->free;
 	for (i = 0; i < p->num; i++) {
 		*mpp = mp;
-		memset(mp, 0, sizeof(*mp));
+		kz_memset(mp, 0, sizeof(*mp));
 		mp->size = p->size;
 		mpp = &(mp->next);
 		mp = (kzmem_block *)((char *)mp + p->size);

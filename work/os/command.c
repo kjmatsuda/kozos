@@ -20,11 +20,11 @@ static void send_write(char *str)
 {
 	char *p;
 	int len;
-	len = strlen(str);
+	len = kz_strlen(str);
 	p = kz_kmalloc(len + 2);
 	p[0] = '0';
 	p[1] = CONSDRV_CMD_WRITE;
-	memcpy(&p[2], str, len);
+	kz_memcpy(&p[2], str, len);
 	kz_send(MSGBOX_ID_CONSOUTPUT, len + 2, p);
 }
 
@@ -42,36 +42,36 @@ int command_main(int argc, char *argv[])
 		kz_recv(MSGBOX_ID_CONSINPUT, &size, &p);
 		p[size] = '\0';
 
-		if (!strncmp(p, "echo", 4)) { /* echoコマンド */
+		if (!kz_strncmp(p, "echo", 4)) { /* echoコマンド */
 			send_write(p + 4); /* echoに続く文字列を出力する */
 			send_write("\n");
 		}
-		else if (!strncmp(p, "ledhi1_0", 8)) {
+		else if (!kz_strncmp(p, "ledhi1_0", 8)) {
 			ioport_set_data(1, 0x01);
 			send_write("ledhi1_0\n");
 			send_write("\n");
 		}
-		else if (!strncmp(p, "ledhi1_7", 8)) {
+		else if (!kz_strncmp(p, "ledhi1_7", 8)) {
 			ioport_set_data(1, 0x80);
 			send_write("ledhi1_7\n");
 			send_write("\n");
 		}
-		else if (!strncmp(p, "ledhi2_0", 8)) {
+		else if (!kz_strncmp(p, "ledhi2_0", 8)) {
 			ioport_set_data(2, 0x01);
 			send_write("ledhi2_0\n");
 			send_write("\n");
 		}
-		else if (!strncmp(p, "ledhi2_7", 8)) {
+		else if (!kz_strncmp(p, "ledhi2_7", 8)) {
 			ioport_set_data(2, 0x80);
 			send_write("ledhi2_7\n");
 			send_write("\n");
 		}
-		else if (!strncmp(p, "ledlo1", 6)) {
+		else if (!kz_strncmp(p, "ledlo1", 6)) {
 			ioport_set_data(1, 0);
 			send_write("ledlo1\n");
 			send_write("\n");
 		}
-		else if (!strncmp(p, "ledlo2", 6)) {
+		else if (!kz_strncmp(p, "ledlo2", 6)) {
 			ioport_set_data(2, 0);
 			send_write("ledlo2\n");
 			send_write("\n");

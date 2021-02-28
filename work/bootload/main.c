@@ -14,8 +14,8 @@ static int init(void)
 	 * データ領域とBSS領域を初期化する．この処理以降でないと，
 	 * グローバル変数が初期化されていないので注意．
 	 */
-	memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
-	memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
+	kz_memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
+	kz_memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
 
 	/* ソフトウエア・割り込みベクタを初期化する */
 	softvec_init();
@@ -32,19 +32,19 @@ static int dump(char *buf, long size)
 	long i;
 
 	if (size < 0) {
-		puts("no data.\n");
+		kz_puts("no data.\n");
 		return -1;
 	}
 	for (i = 0; i < size; i++) {
-		putxval(buf[i], 2);
+		kz_putxval(buf[i], 2);
 		if ((i & 0xf) == 15) {
-			puts("\n");
+			kz_puts("\n");
 		} else {
-			if ((i & 0xf) == 7) puts(" ");
-			puts(" ");
+			if ((i & 0xf) == 7) kz_puts(" ");
+			kz_puts(" ");
 		}
 	}
-	puts("\n");
+	kz_puts("\n");
 
 	return 0;
 }
@@ -69,40 +69,40 @@ int main(void)
 
 	init();
 
-	puts("kzload (kozos boot loader) started.\n");
+	kz_puts("kzload (kozos boot loader) started.\n");
 
 	while (1) {
-		puts("kzload> "); /* プロンプト表示 */
-		gets(buf); /* シリアルからのコマンド受信 */
+		kz_puts("kzload> "); /* プロンプト表示 */
+		kz_gets(buf); /* シリアルからのコマンド受信 */
 
-		if (!strcmp(buf, "load")) { /* XMODEMでのファイルのダウンロード */
+		if (!kz_strcmp(buf, "load")) { /* XMODEMでのファイルのダウンロード */
 			loadbuf = (char *)(&buffer_start);
 			size = xmodem_recv(loadbuf);
 			wait(); /* 転送アプリが終了し端末アプリに制御が戻るまで待ち合わせる */
 			if (size < 0) {
-	puts("\nXMODEM receive error!\n");
+	kz_puts("\nXMODEM receive error!\n");
 			} else {
-	puts("\nXMODEM receive succeeded.\n");
+	kz_puts("\nXMODEM receive succeeded.\n");
 			}
-		} else if (!strcmp(buf, "dump")) { /* メモリの16進ダンプ出力 */
-			puts("size: ");
-			putxval(size, 0);
-			puts("\n");
+		} else if (!kz_strcmp(buf, "dump")) { /* メモリの16進ダンプ出力 */
+			kz_puts("size: ");
+			kz_putxval(size, 0);
+			kz_puts("\n");
 			dump(loadbuf, size);
-		} else if (!strcmp(buf, "run")) { /* ELF形式ファイルの実行 */
+		} else if (!kz_strcmp(buf, "run")) { /* ELF形式ファイルの実行 */
 			entry_point = elf_load(loadbuf); /* メモリ上に展開(ロード) */
 			if (!entry_point) {
-	puts("run error!\n");
+	kz_puts("run error!\n");
 			} else {
-	puts("starting from entry point: ");
-	putxval((unsigned long)entry_point, 0);
-	puts("\n");
+	kz_puts("starting from entry point: ");
+	kz_putxval((unsigned long)entry_point, 0);
+	kz_puts("\n");
 	f = (void (*)(void))entry_point;
 	f(); /* ここで，ロードしたプログラムに処理を渡す */
 	/* ここには返ってこない */
 			}
 		} else {
-			puts("unknown.\n");
+			kz_puts("unknown.\n");
 		}
 	}
 
