@@ -23,7 +23,7 @@ TARGET = kozos
 
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
 #CFLAGS += -mint32 # int��32�ӥåȤˤ���ȳݻ����任���Ǥ��ʤ��ʤ�
-CFLAGS += -I.
+CFLAGS += -I../include/os
 #CFLAGS += -g
 CFLAGS += -Os
 CFLAGS += -DKOZOS
