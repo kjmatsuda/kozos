@@ -26,7 +26,7 @@ TARGET = kzload
 
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
 #CFLAGS += -mint32 # intを32ビットにすると掛算／割算ができなくなる
-CFLAGS += -I.
+CFLAGS += -I. -I../include -I../include/bootload
 #CFLAGS += -g
 CFLAGS += -Os
 CFLAGS += -DKZLOAD
