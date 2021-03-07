@@ -12,3 +12,5 @@ kozos.elf
 .settings
 .autotools
 objs
+kozos_work_tests
+libkozos_work.a

@@ -1,4 +1,3 @@
-#include "defines.h"
 #include "timer.h"
 
 #define TIMER_NUM 3
@@ -100,3 +99,67 @@ int get_timer_interrupt_interval_msec()
 {
 	return TIMER_INTERRUPT_INTERVAL_MSEC;
 }
+
+#ifdef CPPUTEST
+uint8 get_timer_common_start_register()
+{
+	return l_timer_common_reg->tstr;
+}
+
+uint8 get_timer_common_sync_register()
+{
+	return l_timer_common_reg->tsnc;
+}
+uint8 get_timer_common_mode_register()
+{
+	return l_timer_common_reg->tmdr;
+}
+uint8 get_timer_common_output_level_set_register()
+{
+	return l_timer_common_reg->tolr;
+}
+uint8 get_timer_common_intr_sts_register_a()
+{
+	return l_timer_common_reg->tisra;
+}
+uint8 get_timer_common_intr_sts_register_b()
+{
+	return l_timer_common_reg->tisrb;
+}
+uint8 get_timer_common_intr_sts_register_c()
+{
+	return l_timer_common_reg->tisrc;
+}
+uint8 get_timer_ctrl_register(int index)
+{
+	return l_timer_regs[index].p_timer->tcr;
+}
+uint8 get_timer_io_ctrl_register(int index)
+{
+	return l_timer_regs[index].p_timer->tior;
+}
+uint8 get_timer_counter_high(int index)
+{
+	return l_timer_regs[index].p_timer->tcnt_high;
+}
+uint8 get_timer_counter_low(int index)
+{
+	return l_timer_regs[index].p_timer->tcnt_low;
+}
+uint8 get_timer_general_register_a_high(int index)
+{
+	return l_timer_regs[index].p_timer->gra_high;
+}
+uint8 get_timer_general_register_a_low(int index)
+{
+	return l_timer_regs[index].p_timer->gra_low;
+}
+uint8 get_timer_general_register_b_high(int index)
+{
+	return l_timer_regs[index].p_timer->grb_high;
+}
+uint8 get_timer_general_register_b_low(int index)
+{
+	return l_timer_regs[index].p_timer->grb_low;
+}
+#endif

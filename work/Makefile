@@ -35,7 +35,7 @@ INCLUDE_DIRS =\
   $(CPPUTEST_HOME)/include/Platforms/Gcc\
   mocks
 
-CPPUTEST_WARNINGFLAGS = -Wall -Wswitch-default -fno-builtin
+CPPUTEST_WARNINGFLAGS = -Wall -Wswitch-default -fno-builtin -fpermissive
 CPPUTEST_WARNINGFLAGS += -Wconversion -Wswitch-enum 
 # 2021/02/28 K.Matsuda ソースコード上で ifndefで切り分けられるように以下を追加
 CPPUTEST_WARNINGFLAGS += -DCPPUTEST
