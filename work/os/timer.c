@@ -1,7 +1,5 @@
 #include "timer.h"
 
-#define TIMER_NUM 3
-
 #define TIMER_COMMON ((volatile struct timer_common *)0xffff60)
 #define TIMER0 ((volatile struct timer *)0xffff68)
 #define TIMER1 ((volatile struct timer *)0xffff70)
@@ -11,27 +9,7 @@
 
 #define TIMER_INTERRUPT_INTERVAL_MSEC	 (10)
 
-struct timer_common {
-	volatile uint8 tstr;		// タイマスタートレジスタ
-	volatile uint8 tsnc;		// タイマシンクロレジスタ
-	volatile uint8 tmdr;		// タイマモードレジスタ
-	volatile uint8 tolr;		// タイマアウトプットレベルセットレジスタ
-	volatile uint8 tisra;		// タイマインタラプトステータスレジスタA
-	volatile uint8 tisrb;		// タイマインタラプトステータスレジスタB
-	volatile uint8 tisrc;		// タイマインタラプトステータスレジスタC
-};
-
-struct timer {
-	volatile uint8 tcr;				// タイマコントロールレジスタ
-	volatile uint8 tior;			// タイマI/Oコントロールレジスタ
-	volatile uint8 tcnt_high;		// タイマカウンタ(High)
-	volatile uint8 tcnt_low;		// タイマカウンタ(Low)
-	volatile uint8 gra_high;		// ジェネラルレジスタA(High)
-	volatile uint8 gra_low;			// ジェネラルレジスタA(Low)
-	volatile uint8 grb_high;		// ジェネラルレジスタB(High)
-	volatile uint8 grb_low;			// ジェネラルレジスタB(Low)
-};
-
+#ifndef CPPUTEST
 static struct {
 	volatile struct timer *p_timer;
 } l_timer_regs[TIMER_NUM] = {
@@ -41,6 +19,13 @@ static struct {
 };
 
 static struct timer_common *l_timer_common_reg = TIMER_COMMON;
+#else
+static struct {
+	volatile struct timer *p_timer;
+} l_timer_regs[TIMER_NUM];
+
+static struct timer_common *l_timer_common_reg;
+#endif
 
 void timer_init(int index)
 {
@@ -101,6 +86,16 @@ int get_timer_interrupt_interval_msec()
 }
 
 #ifdef CPPUTEST
+void set_timer_common_reg_address(struct timer_common *p_timer_common_reg)
+{
+	l_timer_common_reg = p_timer_common_reg;
+}
+
+void set_timer_reg_address(int index, struct timer *p_timer_reg)
+{
+	l_timer_regs[index].p_timer = p_timer_reg;
+}
+
 uint8 get_timer_common_start_register()
 {
 	return l_timer_common_reg->tstr;
